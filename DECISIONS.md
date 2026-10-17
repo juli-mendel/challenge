@@ -1,7 +1,5 @@
 # Decisions
 
-
-
 En el siguiente documento dejo registrado decisiones que tomé en el proyecto.
 
 ## Arquitectura
@@ -11,7 +9,7 @@ Voy a basarme en una arquitectura hexagonal (siguiendo clean architecture).
 - Dominio: Como entidad, Transaction
 - Aplicación
   - Casos de uso:
-    - CreateTransaction: Crear transacciones
+    - SaveTransaction: Crea o actualiza transacciones
     - GetByType: Consultar transacciones por su tipo
     - GetSum: Consultar la suma relacionada transitivamente por sus parentsId
   - TransactionRepository: una interfaz que define las operaciones que se puede realizar para obtener datos de las transacciones en el storage
@@ -36,19 +34,24 @@ Para la aplicación es agnósitco el tipo de "storage" que se usará. Podríamos
 
 Con respecto a la decisión de tener transactionSumById. Encontré una solución cuya complejidad es O(log n) para la actualización si los datos estan bien distribuidos (O(n) si sólo es una lista enlazada) y O(1) para la consulta.
 Si cada vez que se consulta GetSum se tiene que recorrer todas las transacciones, reconstruir el árbol y recién ahí consultar la suma es ineficiente a medida que crecen las transacciones.
+
 Cuando se inserta una nueva transacción, los costos deben actualizarse. Para esto alcanza con estos casos:
 1. Si la nueva transacción tiene padre, se actualiza la suma del padre.
 2. Si el padre de la nueva transacción tiene padre, se sigue actualizando la suma transitivamente.
 
-Con esto solo se recorre y actualiza el camino desde la nueva transacción hasta la raíz del árbol.
+En caso de actualizarse una transacción, pueden darse los siguientes casos:
+1. La transacción mantiene su parent_id pero actualiza el monto.
+2. La transacción cambia el parent_id
+3. La transacción deja en null el nuevo parent_id.
+
+En el caso 1, es actualizar desde la transacción actualizada para arriba en el árbol los costos
+En el caso 2, es restar la suma de la versión anterior de la transacción actualizada para arriba en el árbol, y luego sumar la nueva versión de la transacción actualizada para arriba en el árbol.
+En el caso 3, es restar la suma de la versión anterior de la transacción actualizada para arriba en el árbol.
 
 ## Asunciones
-1. No se puede actualizar las transacciones. Si bien el PUT se utiliza para crear o actualizar las transacciones, como no recibe ID (por consigna), entonces no puede actualizarlas.
+1. Siempre que se actualiza una transacción se chequea que no haya ciclos
 2. Amount puede ser positivo, negativo o cero.
 3. Una transacción no puede tenerse a sí mismo como padre.
 4. El padre de una transacción tiene que existir. De todas formas, si no existiera, sólo cambiaría el algoritmo de cálculo de la suma.
 5. type puede ser el string vacío.
-
-
-## Decisiones
-Transaction va a fallar si parentId es igual al transaction id. De todas formas, el parentId tiene que existir, por lo que no debería pasar en el negocio de que parentId y transaction id sean iguales.
+6. Transaction va a fallar si parentId es igual al transaction id. De todas formas, el parentId tiene que existir, por lo que no debería pasar en el negocio de que parentId y transaction id sean iguales.
