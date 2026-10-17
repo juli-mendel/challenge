@@ -256,4 +256,25 @@ public class InMemoryTransactionRepositoryTest {
 
         assertEquals(List.of(transaction), transactionRepository.getTransactionsByType(EMPTY_TYPE));
     }
+
+    @Test
+    void givenExistingTransactionWithSameType_whenSave_thenItAppearsOnceWithItsNewVersion() {
+        transactionRepository.save(new Transaction(ID, TYPE, AMOUNT, null));
+
+        Transaction updatedTransaction = new Transaction(ID, TYPE, 3000.0, null);
+        transactionRepository.save(updatedTransaction);
+
+        assertEquals(List.of(updatedTransaction), transactionRepository.getTransactionsByType(TYPE));
+    }
+
+    @Test
+    void givenExistingTransactionWithNewType_whenSave_thenItMovesFromOldTypeToNewType() {
+        transactionRepository.save(new Transaction(ID, TYPE, AMOUNT, null));
+
+        Transaction updatedTransaction = new Transaction(ID, OTHER_TYPE, AMOUNT, null);
+        transactionRepository.save(updatedTransaction);
+
+        assertEquals(List.of(), transactionRepository.getTransactionsByType(TYPE));
+        assertEquals(List.of(updatedTransaction), transactionRepository.getTransactionsByType(OTHER_TYPE));
+    }
 }

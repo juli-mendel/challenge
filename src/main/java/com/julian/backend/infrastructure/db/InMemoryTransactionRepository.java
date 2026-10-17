@@ -31,6 +31,8 @@ public class InMemoryTransactionRepository implements TransactionRepository {
         double newSum = previousSum - previousAmount + newAmount;
 
         subtractPreviousSumFromAncestors(transaction, previousSum);
+        removePreviousFromTransactionsByType(transaction);
+
         transactionById.put(transaction.getId(), transaction);
         sumByTransactionId.put(transaction.getId(), newSum);
         addAmountToAncestors(transaction, newSum);
@@ -40,6 +42,11 @@ public class InMemoryTransactionRepository implements TransactionRepository {
 
     private void addInTransactionByType(Transaction transaction) {
         transactionsByType.computeIfAbsent(transaction.getType(), type -> new ArrayList<>()).add(transaction);
+    }
+
+    private void removePreviousFromTransactionsByType(Transaction transaction) {
+        findById(transaction.getId()).ifPresent(previousTransaction ->
+                transactionsByType.get(previousTransaction.getType()).remove(previousTransaction));
     }
 
     private void subtractPreviousSumFromAncestors(Transaction transaction, double previousSum) {
