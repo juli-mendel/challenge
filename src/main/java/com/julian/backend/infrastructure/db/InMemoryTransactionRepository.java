@@ -14,9 +14,9 @@ import java.util.Set;
 @Repository
 public class InMemoryTransactionRepository implements TransactionRepository {
 
-    Map<Long, Transaction> transactionById;
-    Map<Long, Double> sumByTransactionId;
-    Map<String, Set<Long>> transactionIdsByType;
+    private final Map<Long, Transaction> transactionById;
+    private final Map<Long, Double> sumByTransactionId;
+    private final Map<String, Set<Long>> transactionIdsByType;
 
     public InMemoryTransactionRepository() {
         this.transactionById = new HashMap<>();
