@@ -104,11 +104,11 @@ public class TransactionServiceTest {
     }
 
     @Test
-    void givenTransactionWithoutChildren_whenGetTransactionSum_thenReturnsItsAmount() {
-        Transaction transaction = new Transaction(ID, TYPE, AMOUNT, PARENT_ID);
-        when(transactionRepository.findById(ID)).thenReturn(Optional.of(transaction));
+    void givenExistingTransaction_whenGetTransactionSum_thenReturnsSumFromRepository() {
+        double repositorySum = 6200.0;
+        when(transactionRepository.getTransactionSumById(ID)).thenReturn(Optional.of(repositorySum));
 
-        assertEquals(AMOUNT, transactionService.getTransactionSum(ID));
+        assertEquals(repositorySum, transactionService.getTransactionSum(ID));
     }
 
     @Test

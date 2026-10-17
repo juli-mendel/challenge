@@ -48,8 +48,7 @@ public class TransactionService implements SaveTransaction, GetTransactionSum {
 
     @Override
     public double getTransactionSum(Long id) {
-        return transactionRepository.findById(id)
-                .map(Transaction::getAmount)
+        return transactionRepository.getTransactionSumById(id)
                 .orElseThrow(() -> new TransactionNotFoundException(id));
     }
 }
