@@ -24,7 +24,7 @@ public class InMemoryTransactionRepository implements TransactionRepository {
 
     @Override
     public boolean existsById(Long id) {
-        return false;
+        return transactionById.containsKey(id);
     }
 
     @Override

@@ -1,6 +1,8 @@
 package com.julian.backend.infrastructure.db;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.Optional;
 
@@ -34,5 +36,19 @@ public class InMemoryRepositoryTest {
     @Test
     void givenNonExistingId_whenFindById_thenReturnsEmpty() {
         assertEquals(Optional.empty(), transactionRepository.findById(ID));
+    }
+
+    @Test
+    void givenSavedTransaction_whenExistsById_thenReturnsTrue() {
+        Transaction transaction = new Transaction(ID, TYPE, AMOUNT, null);
+
+        transactionRepository.save(transaction);
+
+        assertTrue(transactionRepository.existsById(ID));
+    }
+
+    @Test
+    void givenNonExistingId_whenExistsById_thenReturnsFalse() {
+        assertFalse(transactionRepository.existsById(ID));
     }
 }
