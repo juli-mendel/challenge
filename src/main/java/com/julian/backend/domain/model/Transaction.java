@@ -19,6 +19,9 @@ public class Transaction {
         if (amount == null) {
             throw new IllegalArgumentException("amount must not be null");
         }
+        if (id.equals(parentId)) {
+            throw new IllegalArgumentException("parentId must not be equal to id");
+        }
         this.id = id;
         this.type = type;
         this.amount = amount;

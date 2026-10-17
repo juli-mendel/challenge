@@ -84,4 +84,9 @@ public class TransactionTest {
     void givenNullAmount_whenCreateTransaction_thenThrowsIllegalArgumentException() {
         assertThrows(IllegalArgumentException.class, () -> new Transaction(ID, TYPE, null, PARENT_ID));
     }
+
+    @Test
+    void givenParentIdEqualToId_whenCreateTransaction_thenThrowsIllegalArgumentException() {
+        assertThrows(IllegalArgumentException.class, () -> new Transaction(ID, TYPE, AMOUNT, ID));
+    }
 }
