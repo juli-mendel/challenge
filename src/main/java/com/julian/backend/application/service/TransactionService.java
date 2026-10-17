@@ -2,7 +2,9 @@ package com.julian.backend.application.service;
 
 import com.julian.backend.application.exception.ParentTransactionNotFoundException;
 import com.julian.backend.application.exception.TransactionCycleException;
+import com.julian.backend.application.exception.TransactionNotFoundException;
 import com.julian.backend.application.repository.TransactionRepository;
+import com.julian.backend.application.usecase.GetTransactionSum;
 import com.julian.backend.application.usecase.SaveTransaction;
 import com.julian.backend.domain.model.Transaction;
 import org.springframework.stereotype.Service;
@@ -10,7 +12,7 @@ import org.springframework.stereotype.Service;
 import java.util.Optional;
 
 @Service
-public class TransactionService implements SaveTransaction {
+public class TransactionService implements SaveTransaction, GetTransactionSum {
 
     private final TransactionRepository transactionRepository;
 
@@ -42,5 +44,18 @@ public class TransactionService implements SaveTransaction {
                 throw new ParentTransactionNotFoundException(parentId);
             }
         });
+    }
+
+    @Override
+    public double getTransactionSum(Long id) {
+        verifyTransactionIdExists(id);
+
+        return 0;
+    }
+
+    private void verifyTransactionIdExists(Long id) {
+        if (!transactionRepository.existsById(id)) {
+            throw new TransactionNotFoundException(id);
+        }
     }
 }

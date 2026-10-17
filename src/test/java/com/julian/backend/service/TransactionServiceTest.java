@@ -1,5 +1,6 @@
 package com.julian.backend.service;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -11,6 +12,7 @@ import java.util.Optional;
 
 import com.julian.backend.application.exception.ParentTransactionNotFoundException;
 import com.julian.backend.application.exception.TransactionCycleException;
+import com.julian.backend.application.exception.TransactionNotFoundException;
 import com.julian.backend.application.repository.TransactionRepository;
 import com.julian.backend.application.service.TransactionService;
 import org.junit.jupiter.api.BeforeEach;
@@ -99,6 +101,17 @@ public class TransactionServiceTest {
         transactionService.saveTransaction(transaction);
 
         transactionWasSaved(transaction);
+    }
+
+    @Test
+    void givenTransactionId_whenGetTransactionSum_thenReturnsZero() {
+        when(transactionRepository.existsById(ID)).thenReturn(true);
+        assertEquals(0.0, transactionService.getTransactionSum(ID));
+    }
+
+    @Test
+    void givenTransactionId_whenGetTransactionSum_withNonExistentTransactionId_thenThrowTransactionNotFoundException() {
+        assertThrows(TransactionNotFoundException.class, () -> transactionService.getTransactionSum(ID));
     }
 
     private void transactionWasSaved(Transaction transaction) {
