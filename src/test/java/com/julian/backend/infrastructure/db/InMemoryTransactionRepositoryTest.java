@@ -171,4 +171,44 @@ public class InMemoryTransactionRepositoryTest {
         double expectedParentSum = AMOUNT + expectedChildSum;
         assertEquals(Optional.of(expectedParentSum), transactionRepository.getTransactionSumById(ID));
     }
+
+    @Test
+    void givenExistingTransactionWithNewParent_whenSave_thenSubtreeSumMovesToNewParent() {
+        transactionRepository.save(new Transaction(ID, TYPE, AMOUNT, null));
+
+        double childAmount = 1000.0;
+        transactionRepository.save(new Transaction(CHILD_ID, TYPE, childAmount, ID));
+
+        double grandchildAmount = 200.0;
+        transactionRepository.save(new Transaction(GRANDCHILD_ID, TYPE, grandchildAmount, CHILD_ID));
+
+        double newParentAmount = 4.0;
+        transactionRepository.save(new Transaction(UNCONNECTED_ID, TYPE, newParentAmount, null));
+
+        transactionRepository.save(new Transaction(CHILD_ID, TYPE, childAmount, UNCONNECTED_ID));
+
+        double expectedChildSum = childAmount + grandchildAmount;
+        assertEquals(Optional.of(expectedChildSum), transactionRepository.getTransactionSumById(CHILD_ID));
+        assertEquals(Optional.of(AMOUNT), transactionRepository.getTransactionSumById(ID));
+
+        double expectedNewParentSum = newParentAmount + expectedChildSum;
+        assertEquals(Optional.of(expectedNewParentSum), transactionRepository.getTransactionSumById(UNCONNECTED_ID));
+    }
+
+    @Test
+    void givenExistingTransactionWithParentRemoved_whenSave_thenSubtreeSumIsRemovedFromOldParent() {
+        transactionRepository.save(new Transaction(ID, TYPE, AMOUNT, null));
+
+        double childAmount = 1000.0;
+        transactionRepository.save(new Transaction(CHILD_ID, TYPE, childAmount, ID));
+
+        double grandchildAmount = 200.0;
+        transactionRepository.save(new Transaction(GRANDCHILD_ID, TYPE, grandchildAmount, CHILD_ID));
+
+        transactionRepository.save(new Transaction(CHILD_ID, TYPE, childAmount, null));
+
+        double expectedChildSum = childAmount + grandchildAmount;
+        assertEquals(Optional.of(expectedChildSum), transactionRepository.getTransactionSumById(CHILD_ID));
+        assertEquals(Optional.of(AMOUNT), transactionRepository.getTransactionSumById(ID));
+    }
 }
