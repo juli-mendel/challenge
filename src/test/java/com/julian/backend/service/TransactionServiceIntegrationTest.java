@@ -1,4 +1,4 @@
-package com.julian.backend;
+package com.julian.backend.service;
 
 import com.julian.backend.application.exception.ParentTransactionNotFoundException;
 import com.julian.backend.application.exception.TransactionCycleException;
@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-public class TransactionServiceIT {
+public class TransactionServiceIntegrationTest {
 
     private TransactionService transactionService;
 
