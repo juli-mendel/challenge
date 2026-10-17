@@ -1,12 +1,15 @@
 package com.julian.backend.domain.model;
 
+import java.util.Optional;
+
 public class Transaction {
 
     private final Long id;
     private final String type;
     private final Double amount;
+    private final Long parentId;
 
-    public Transaction(Long id, String type, Double amount) {
+    public Transaction(Long id, String type, Double amount, Long parentId) {
         if (id == null) {
             throw new IllegalArgumentException("id must not be null");
         }
@@ -19,6 +22,7 @@ public class Transaction {
         this.id = id;
         this.type = type;
         this.amount = amount;
+        this.parentId = parentId;
     }
 
     public Long getId() {
@@ -31,5 +35,9 @@ public class Transaction {
 
     public Double getAmount() {
         return amount;
+    }
+
+    public Optional<Long> getParentId() {
+        return Optional.ofNullable(parentId);
     }
 }
