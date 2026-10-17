@@ -6,24 +6,28 @@ import org.junit.jupiter.api.Test;
 
 public class TransactionTest {
 
+    private static final Long ID = 10L;
+    private static final String TYPE = "cars";
+    private static final Double AMOUNT = 5000.0;
+
     @Test
     void givenNewTransactionWithId_whenGetId_thenReturnsId() {
-        Transaction transaction = new Transaction(10L, "cars", 5000.0);
+        Transaction transaction = new Transaction(ID, TYPE, AMOUNT);
 
-        assertEquals(10L, transaction.getId());
+        assertEquals(ID, transaction.getId());
     }
 
     @Test
     void givenNewTransactionWithType_whenGetType_thenReturnsType() {
-        Transaction transaction = new Transaction(10L, "cars", 5000.0);
+        Transaction transaction = new Transaction(ID, TYPE, AMOUNT);
 
-        assertEquals("cars", transaction.getType());
+        assertEquals(TYPE, transaction.getType());
     }
 
     @Test
     void givenNewTransactionWithAmount_whenGetAmount_thenReturnsAmount() {
-        Transaction transaction = new Transaction(10L, "cars", 5000.0);
+        Transaction transaction = new Transaction(ID, TYPE, AMOUNT);
 
-        assertEquals(5000.0, transaction.getAmount());
+        assertEquals(AMOUNT, transaction.getAmount());
     }
 }
