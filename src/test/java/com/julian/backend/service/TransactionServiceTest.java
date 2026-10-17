@@ -8,6 +8,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.List;
 import java.util.Optional;
 
 import com.julian.backend.application.exception.ParentTransactionNotFoundException;
@@ -114,6 +115,11 @@ public class TransactionServiceTest {
     @Test
     void givenTransactionId_whenGetTransactionSum_withNonExistentTransactionId_thenThrowTransactionNotFoundException() {
         assertThrows(TransactionNotFoundException.class, () -> transactionService.getTransactionSum(ID));
+    }
+
+    @Test
+    void givenType_whenGetTransactionsByType_withNonExistentType_shouldReturnEmptyList() {
+        assertEquals(List.of(), transactionService.getTransactionsByType(TYPE));
     }
 
     private void transactionWasSaved(Transaction transaction) {

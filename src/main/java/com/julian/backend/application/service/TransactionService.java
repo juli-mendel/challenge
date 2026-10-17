@@ -5,14 +5,16 @@ import com.julian.backend.application.exception.TransactionCycleException;
 import com.julian.backend.application.exception.TransactionNotFoundException;
 import com.julian.backend.application.repository.TransactionRepository;
 import com.julian.backend.application.usecase.GetTransactionSum;
+import com.julian.backend.application.usecase.GetTransactionsByType;
 import com.julian.backend.application.usecase.SaveTransaction;
 import com.julian.backend.domain.model.Transaction;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
-public class TransactionService implements SaveTransaction, GetTransactionSum {
+public class TransactionService implements SaveTransaction, GetTransactionSum, GetTransactionsByType {
 
     private final TransactionRepository transactionRepository;
 
@@ -50,5 +52,10 @@ public class TransactionService implements SaveTransaction, GetTransactionSum {
     public double getTransactionSum(Long id) {
         return transactionRepository.getTransactionSumById(id)
                 .orElseThrow(() -> new TransactionNotFoundException(id));
+    }
+
+    @Override
+    public List<Transaction> getTransactionsByType(String type) {
+        return List.of();
     }
 }
