@@ -1,6 +1,7 @@
 package com.julian.backend.domain.model;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
 
@@ -29,5 +30,20 @@ public class TransactionTest {
         Transaction transaction = new Transaction(ID, TYPE, AMOUNT);
 
         assertEquals(AMOUNT, transaction.getAmount());
+    }
+
+    @Test
+    void givenNullId_whenCreateTransaction_thenThrowsIllegalArgumentException() {
+        assertThrows(IllegalArgumentException.class, () -> new Transaction(null, TYPE, AMOUNT));
+    }
+
+    @Test
+    void givenNullType_whenCreateTransaction_thenThrowsIllegalArgumentException() {
+        assertThrows(IllegalArgumentException.class, () -> new Transaction(ID, null, AMOUNT));
+    }
+
+    @Test
+    void givenNullAmount_whenCreateTransaction_thenThrowsIllegalArgumentException() {
+        assertThrows(IllegalArgumentException.class, () -> new Transaction(ID, TYPE, null));
     }
 }
