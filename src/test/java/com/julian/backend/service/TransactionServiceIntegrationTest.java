@@ -96,6 +96,44 @@ public class TransactionServiceIntegrationTest {
     }
 
     @Test
+    void saveTransaction_toAnExistentTransaction_withDifferentParent_shouldMoveItsSumToTheNewParent() {
+        double firstParentAmount = 10000.0;
+        Transaction firstParent = new Transaction(10L, "cars", firstParentAmount, null);
+        transactionService.saveTransaction(firstParent);
+
+        double secondParentAmount = 4.0;
+        Transaction secondParent = new Transaction(20L, "cars", secondParentAmount, null);
+        transactionService.saveTransaction(secondParent);
+
+        double childAmount = 1000.0;
+        long childId = 11L;
+        transactionService.saveTransaction(new Transaction(childId, "cars", childAmount, firstParent.getId()));
+
+        double grandchildAmount = 5000.0;
+        transactionService.saveTransaction(new Transaction(12L, "planes", grandchildAmount, childId));
+
+        transactionService.saveTransaction(new Transaction(childId, "cars", childAmount, secondParent.getId()));
+
+        double childSum = childAmount + grandchildAmount;
+        assertEquals(firstParentAmount, transactionService.getTransactionSum(firstParent.getId()));
+        assertEquals(secondParentAmount + childSum, transactionService.getTransactionSum(secondParent.getId()));
+        assertEquals(childSum, transactionService.getTransactionSum(childId));
+    }
+
+    @Test
+    void saveTransaction_toAnExistentTransaction_withDifferentType_shouldMoveItToTheNewType() {
+        transactionService.saveTransaction(new Transaction(10L, "cars", 1000.0, null));
+        Transaction otherCar = new Transaction(20L, "cars", 2000.0, null);
+        transactionService.saveTransaction(otherCar);
+
+        Transaction updatedTransaction = new Transaction(10L, "planes", 1000.0, null);
+        transactionService.saveTransaction(updatedTransaction);
+
+        assertEquals(List.of(otherCar), transactionService.getTransactionsByType("cars"));
+        assertEquals(List.of(updatedTransaction), transactionService.getTransactionsByType("planes"));
+    }
+
+    @Test
     void saveTransaction_withCycle_shouldThrowTransactionCycleException() {
         long parentTransactionId = 123L;
         double parentAmount = 1000.0;
