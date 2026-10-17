@@ -47,4 +47,4 @@ Con esto solo se recorre y actualiza el camino desde la nueva transacción hasta
 2. Amount puede ser positivo, negativo o cero.
 3. Una transacción no puede tenerse a sí mismo como padre.
 4. El padre de una transacción tiene que existir. De todas formas, si no existiera, sólo cambiaría el algoritmo de cálculo de la suma.
-
+5. type puede ser el string vacío.

@@ -29,6 +29,13 @@ public class TransactionTest {
     }
 
     @Test
+    void givenNewTransactionWithEmptyType_whenGetType_thenReturnsEmptyType() {
+        Transaction transaction = new Transaction(ID, "", AMOUNT, PARENT_ID);
+
+        assertEquals("", transaction.getType());
+    }
+
+    @Test
     void givenNewTransactionWithAmount_whenGetAmount_thenReturnsAmount() {
         Transaction transaction = new Transaction(ID, TYPE, AMOUNT, PARENT_ID);
 
