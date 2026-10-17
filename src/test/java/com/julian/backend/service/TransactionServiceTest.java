@@ -7,7 +7,10 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.Optional;
+
 import com.julian.backend.application.exception.ParentTransactionNotFoundException;
+import com.julian.backend.application.exception.TransactionCycleException;
 import com.julian.backend.application.repository.TransactionRepository;
 import com.julian.backend.application.service.TransactionService;
 import org.junit.jupiter.api.BeforeEach;
@@ -21,6 +24,7 @@ public class TransactionServiceTest {
     private static final String TYPE = "cars";
     private static final Double AMOUNT = 5000.0;
     private static final Long PARENT_ID = 5L;
+    private static final Long GRANDPARENT_ID = 3L;
 
     private TransactionRepository transactionRepository;
     private TransactionService transactionService;
@@ -37,7 +41,7 @@ public class TransactionServiceTest {
 
         transactionService.saveTransaction(transaction);
 
-        verify(transactionRepository).save(transaction);
+        transactionWasSaved(transaction);
     }
 
     @Test
@@ -47,7 +51,7 @@ public class TransactionServiceTest {
 
         transactionService.saveTransaction(transaction);
 
-        verify(transactionRepository).save(transaction);
+        transactionWasSaved(transaction);
     }
 
     @Test
@@ -56,6 +60,52 @@ public class TransactionServiceTest {
         when(transactionRepository.existsById(PARENT_ID)).thenReturn(false);
 
         assertThrows(ParentTransactionNotFoundException.class, () -> transactionService.saveTransaction(transaction));
+        transactionWasNeverSaved();
+    }
+
+    @Test
+    void givenParentWhoseParentIsTheTransaction_whenSaveTransaction_thenThrowsTransactionCycleException() {
+        Transaction transaction = new Transaction(ID, TYPE, AMOUNT, PARENT_ID);
+        Transaction parent = new Transaction(PARENT_ID, TYPE, AMOUNT, ID);
+        when(transactionRepository.existsById(PARENT_ID)).thenReturn(true);
+        when(transactionRepository.findById(PARENT_ID)).thenReturn(Optional.of(parent));
+
+        assertThrows(TransactionCycleException.class, () -> transactionService.saveTransaction(transaction));
+        transactionWasNeverSaved();
+    }
+
+    @Test
+    void givenAncestorWhoseParentIsTheTransaction_whenSaveTransaction_thenThrowsTransactionCycleException() {
+        Transaction transaction = new Transaction(ID, TYPE, AMOUNT, PARENT_ID);
+        Transaction parent = new Transaction(PARENT_ID, TYPE, AMOUNT, GRANDPARENT_ID);
+        Transaction grandparent = new Transaction(GRANDPARENT_ID, TYPE, AMOUNT, ID);
+        when(transactionRepository.existsById(PARENT_ID)).thenReturn(true);
+        when(transactionRepository.findById(PARENT_ID)).thenReturn(Optional.of(parent));
+        when(transactionRepository.findById(GRANDPARENT_ID)).thenReturn(Optional.of(grandparent));
+
+        assertThrows(TransactionCycleException.class, () -> transactionService.saveTransaction(transaction));
+        transactionWasNeverSaved();
+    }
+
+    @Test
+    void givenAncestorsWithoutCycle_whenSaveTransaction_thenSavesItInRepository() {
+        Transaction transaction = new Transaction(ID, TYPE, AMOUNT, PARENT_ID);
+        Transaction parent = new Transaction(PARENT_ID, TYPE, AMOUNT, GRANDPARENT_ID);
+        Transaction grandparent = new Transaction(GRANDPARENT_ID, TYPE, AMOUNT, null);
+        when(transactionRepository.existsById(PARENT_ID)).thenReturn(true);
+        when(transactionRepository.findById(PARENT_ID)).thenReturn(Optional.of(parent));
+        when(transactionRepository.findById(GRANDPARENT_ID)).thenReturn(Optional.of(grandparent));
+
+        transactionService.saveTransaction(transaction);
+
+        transactionWasSaved(transaction);
+    }
+
+    private void transactionWasSaved(Transaction transaction) {
+        verify(transactionRepository).save(transaction);
+    }
+
+    private void transactionWasNeverSaved() {
         verify(transactionRepository, never()).save(any());
     }
 }
