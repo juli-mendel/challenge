@@ -131,4 +131,44 @@ public class InMemoryTransactionRepositoryTest {
 
         assertEquals(Optional.of(AMOUNT), transactionRepository.getTransactionSumById(ID));
     }
+
+    @Test
+    void givenExistingTransactionWithSameParentAndNewAmount_whenSave_thenSumsAreUpdated() {
+        transactionRepository.save(new Transaction(ID, TYPE, AMOUNT, null));
+
+        double oldChildAmount = 1000.0;
+        transactionRepository.save(new Transaction(CHILD_ID, TYPE, oldChildAmount, ID));
+
+        double grandchildAmount = 200.0;
+        transactionRepository.save(new Transaction(GRANDCHILD_ID, TYPE, grandchildAmount, CHILD_ID));
+
+        double newChildAmount = 3000.0;
+        transactionRepository.save(new Transaction(CHILD_ID, TYPE, newChildAmount, ID));
+
+        double expectedChildSum = newChildAmount + grandchildAmount;
+        assertEquals(Optional.of(expectedChildSum), transactionRepository.getTransactionSumById(CHILD_ID));
+
+        double expectedParentSum = AMOUNT + expectedChildSum;
+        assertEquals(Optional.of(expectedParentSum), transactionRepository.getTransactionSumById(ID));
+    }
+
+    @Test
+    void givenExistingTransactionWithSameParentAndNewNegativeAmount_whenSave_thenSumsAreUpdated() {
+        transactionRepository.save(new Transaction(ID, TYPE, AMOUNT, null));
+
+        double oldChildAmount = 1000.0;
+        transactionRepository.save(new Transaction(CHILD_ID, TYPE, oldChildAmount, ID));
+
+        double grandchildAmount = 200.0;
+        transactionRepository.save(new Transaction(GRANDCHILD_ID, TYPE, grandchildAmount, CHILD_ID));
+
+        double newChildAmount = -3000.0;
+        transactionRepository.save(new Transaction(CHILD_ID, TYPE, newChildAmount, ID));
+
+        double expectedChildSum = newChildAmount + grandchildAmount;
+        assertEquals(Optional.of(expectedChildSum), transactionRepository.getTransactionSumById(CHILD_ID));
+
+        double expectedParentSum = AMOUNT + expectedChildSum;
+        assertEquals(Optional.of(expectedParentSum), transactionRepository.getTransactionSumById(ID));
+    }
 }

@@ -21,15 +21,22 @@ public class InMemoryTransactionRepository implements TransactionRepository {
 
     @Override
     public void save(Transaction transaction) {
+        double previousAmount = getPreviousAmount(transaction);
+        double amountDelta = transaction.getAmount() - previousAmount;
+
         transactionById.put(transaction.getId(), transaction);
-        sumByTransactionId.put(transaction.getId(), transaction.getAmount());
-        addAmountToAncestors(transaction);
+        sumByTransactionId.merge(transaction.getId(), amountDelta, Double::sum);
+        addAmountToAncestors(transaction, amountDelta);
     }
 
-    private void addAmountToAncestors(Transaction transaction) {
+    private Double getPreviousAmount(Transaction transaction) {
+        return findById(transaction.getId()).map(Transaction::getAmount).orElse(0.0);
+    }
+
+    private void addAmountToAncestors(Transaction transaction, double amount) {
         Optional<Long> ancestorId = transaction.getParentId();
         while (ancestorId.isPresent()) {
-            sumByTransactionId.merge(ancestorId.get(), transaction.getAmount(), Double::sum);
+            sumByTransactionId.merge(ancestorId.get(), amount, Double::sum);
             ancestorId = findById(ancestorId.get()).flatMap(Transaction::getParentId);
         }
     }
