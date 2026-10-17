@@ -7,6 +7,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.julian.backend.application.exception.ParentTransactionNotFoundException;
 import com.julian.backend.application.repository.TransactionRepository;
 import com.julian.backend.application.service.TransactionService;
 import org.junit.jupiter.api.BeforeEach;
@@ -50,11 +51,11 @@ public class TransactionServiceTest {
     }
 
     @Test
-    void givenTransactionWithNonExistingParent_whenSaveTransaction_thenThrowsIllegalArgumentException() {
+    void givenTransactionWithNonExistingParent_whenSaveTransaction_thenThrowsParentTransactionNotFoundException() {
         Transaction transaction = new Transaction(ID, TYPE, AMOUNT, PARENT_ID);
         when(transactionRepository.existsById(PARENT_ID)).thenReturn(false);
 
-        assertThrows(IllegalArgumentException.class, () -> transactionService.saveTransaction(transaction));
+        assertThrows(ParentTransactionNotFoundException.class, () -> transactionService.saveTransaction(transaction));
         verify(transactionRepository, never()).save(any());
     }
 }

@@ -1,5 +1,6 @@
 package com.julian.backend.application.service;
 
+import com.julian.backend.application.exception.ParentTransactionNotFoundException;
 import com.julian.backend.application.repository.TransactionRepository;
 import com.julian.backend.application.usecase.SaveTransaction;
 import com.julian.backend.domain.model.Transaction;
@@ -23,7 +24,7 @@ public class TransactionService implements SaveTransaction {
     private void verifyParentId(Transaction transaction) {
         transaction.getParentId().ifPresent(parentId -> {
             if (!transactionRepository.existsById(parentId)) {
-                throw new IllegalArgumentException("parent transaction " + parentId + " does not exist");
+                throw new ParentTransactionNotFoundException(parentId);
             }
         });
     }
