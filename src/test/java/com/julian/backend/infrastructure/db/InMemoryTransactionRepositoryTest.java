@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 
 import com.julian.backend.domain.model.Transaction;
 
-public class InMemoryRepositoryTest {
+public class InMemoryTransactionRepositoryTest {
 
     private static final Long ID = 10L;
     private static final String TYPE = "cars";
