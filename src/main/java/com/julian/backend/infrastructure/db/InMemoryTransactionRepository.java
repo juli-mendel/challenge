@@ -4,23 +4,24 @@ import com.julian.backend.application.repository.TransactionRepository;
 import com.julian.backend.domain.model.Transaction;
 import org.springframework.stereotype.Repository;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 @Repository
 public class InMemoryTransactionRepository implements TransactionRepository {
 
     Map<Long, Transaction> transactionById;
     Map<Long, Double> sumByTransactionId;
-    Map<String, List<Transaction>> transactionsByType;
+    Map<String, Set<Long>> transactionIdsByType;
 
     public InMemoryTransactionRepository() {
         this.transactionById = new HashMap<>();
         this.sumByTransactionId = new HashMap<>();
-        this.transactionsByType = new HashMap<>();
+        this.transactionIdsByType = new HashMap<>();
     }
 
     @Override
@@ -41,12 +42,14 @@ public class InMemoryTransactionRepository implements TransactionRepository {
     }
 
     private void addInTransactionByType(Transaction transaction) {
-        transactionsByType.computeIfAbsent(transaction.getType(), type -> new ArrayList<>()).add(transaction);
+        transactionIdsByType.computeIfAbsent(transaction.getType(), type -> new LinkedHashSet<>())
+            .add(transaction.getId());
     }
 
     private void removePreviousFromTransactionsByType(Transaction transaction) {
         findById(transaction.getId()).ifPresent(previousTransaction ->
-                transactionsByType.get(previousTransaction.getType()).remove(previousTransaction));
+                transactionIdsByType.get(previousTransaction.getType()).remove(previousTransaction.getId())
+        );
     }
 
     private void subtractPreviousSumFromAncestors(Transaction transaction, double previousSum) {
@@ -86,6 +89,8 @@ public class InMemoryTransactionRepository implements TransactionRepository {
 
     @Override
     public List<Transaction> getTransactionsByType(String type) {
-        return List.copyOf(transactionsByType.getOrDefault(type, List.of()));
+        return transactionIdsByType.getOrDefault(type, Set.of()).stream()
+                .map(transactionById::get)
+                .toList();
     }
 }

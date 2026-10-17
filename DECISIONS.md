@@ -60,3 +60,4 @@ En el caso 3, es restar la suma de la versión anterior de la transacción actua
 ## Decisiones
 1. existsById únicamente pregunta si existe la key en el mapa en memoria. Podría reemplazarse por obtener la transacción y ver que sea distinto de Optional.empty().
 2. No estoy chequeando por null en el TransactionService pensando en que más adelante, el controller (el único punto de acceso al service) no va a permitir que se llame al servicio con null.
+3. transactionIdsByType se implementa como un diccionario indexado por el tipo. En vez de contener una lista de transacciones, obtiene una lista de IDs. Al ser un HashSet tiene un HashMap por dentro indexado por IDs.
