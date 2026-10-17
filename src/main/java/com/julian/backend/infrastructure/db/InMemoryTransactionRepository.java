@@ -26,42 +26,28 @@ public class InMemoryTransactionRepository implements TransactionRepository {
 
     @Override
     public void save(Transaction transaction) {
-        double previousSum = getPreviousSum(transaction);
-        double previousAmount = getPreviousAmount(transaction);
-        double newAmount = transaction.getAmount();
-        double newSum = previousSum - previousAmount + newAmount;
+        Optional<Transaction> previous = findById(transaction.getId());
+        double childrenSum = previous.map(this::getChildrenSum).orElse(0.0);
 
-        subtractPreviousSumFromAncestors(transaction, previousSum);
-        removePreviousFromTransactionsByType(transaction);
+        previous.ifPresent(this::removePreviousTransactionFromIndexes);
+        addNewTransactionToIndexes(transaction, childrenSum + transaction.getAmount());
+    }
 
+    private double getChildrenSum(Transaction transaction) {
+        return sumByTransactionId.get(transaction.getId()) - transaction.getAmount();
+    }
+
+    private void removePreviousTransactionFromIndexes(Transaction previous) {
+        addAmountToAncestors(previous, -sumByTransactionId.get(previous.getId()));
+        transactionIdsByType.get(previous.getType()).remove(previous.getId());
+    }
+
+    private void addNewTransactionToIndexes(Transaction transaction, double sum) {
         transactionById.put(transaction.getId(), transaction);
-        sumByTransactionId.put(transaction.getId(), newSum);
-        addAmountToAncestors(transaction, newSum);
-
-        addInTransactionByType(transaction);
-    }
-
-    private void addInTransactionByType(Transaction transaction) {
+        sumByTransactionId.put(transaction.getId(), sum);
+        addAmountToAncestors(transaction, sum);
         transactionIdsByType.computeIfAbsent(transaction.getType(), type -> new LinkedHashSet<>())
-            .add(transaction.getId());
-    }
-
-    private void removePreviousFromTransactionsByType(Transaction transaction) {
-        findById(transaction.getId()).ifPresent(previousTransaction ->
-                transactionIdsByType.get(previousTransaction.getType()).remove(previousTransaction.getId())
-        );
-    }
-
-    private void subtractPreviousSumFromAncestors(Transaction transaction, double previousSum) {
-        findById(transaction.getId()).ifPresent(previousTransaction -> addAmountToAncestors(previousTransaction, -previousSum));
-    }
-
-    private Double getPreviousSum(Transaction transaction) {
-        return getTransactionSumById(transaction.getId()).orElse(0.0);
-    }
-
-    private double getPreviousAmount(Transaction transaction) {
-        return findById(transaction.getId()).map(Transaction::getAmount).orElse(0.0);
+                .add(transaction.getId());
     }
 
     private void addAmountToAncestors(Transaction transaction, double amount) {
