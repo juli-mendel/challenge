@@ -66,4 +66,9 @@ public class InMemoryTransactionRepository implements TransactionRepository {
     public Optional<Double> getTransactionSumById(Long id) {
         return Optional.ofNullable(sumByTransactionId.get(id));
     }
+
+    @Override
+    public List<Transaction> getTransactionsByType(String type) {
+        return List.of();
+    }
 }

@@ -122,6 +122,17 @@ public class TransactionServiceTest {
         assertEquals(List.of(), transactionService.getTransactionsByType(TYPE));
     }
 
+    @Test
+    void givenType_whenThereIsOneTransactionWithThatType_shouldReturnAListWithThatTransaction() {
+        Transaction transaction = new Transaction(ID, TYPE, AMOUNT, null);
+        when(transactionRepository.getTransactionsByType(TYPE)).thenReturn(List.of(transaction));
+
+        List<Transaction> transactions = transactionService.getTransactionsByType(TYPE);
+
+        assertEquals(1, transactions.size());
+        assertEquals(transaction, transactions.get(0));
+    }
+
     private void transactionWasSaved(Transaction transaction) {
         verify(transactionRepository).save(transaction);
     }

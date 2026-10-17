@@ -56,6 +56,6 @@ public class TransactionService implements SaveTransaction, GetTransactionSum, G
 
     @Override
     public List<Transaction> getTransactionsByType(String type) {
-        return List.of();
+        return transactionRepository.getTransactionsByType(type);
     }
 }
