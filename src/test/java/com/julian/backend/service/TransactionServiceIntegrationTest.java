@@ -92,7 +92,7 @@ public class TransactionServiceIntegrationTest {
     }
 
     @Test
-    void saveTransaction_withCycle_shouldThrowXXX() {
+    void saveTransaction_withCycle_shouldThrowTransactionCycleException() {
         long parentTransactionId = 123L;
         double parentAmount = 1000.0;
         Transaction parentTransaction = new Transaction(parentTransactionId, "cars", parentAmount, null);
