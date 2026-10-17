@@ -55,3 +55,6 @@ En el caso 3, es restar la suma de la versión anterior de la transacción actua
 4. El padre de una transacción tiene que existir. De todas formas, si no existiera, sólo cambiaría el algoritmo de cálculo de la suma.
 5. type puede ser el string vacío.
 6. Transaction va a fallar si parentId es igual al transaction id. De todas formas, el parentId tiene que existir, por lo que no debería pasar en el negocio de que parentId y transaction id sean iguales.
+
+## Decisiones
+1. existsById únicamente pregunta si existe la key en el mapa en memoria. Podría reemplazarse por obtener la transacción y ver que sea distinto de Optional.empty().
