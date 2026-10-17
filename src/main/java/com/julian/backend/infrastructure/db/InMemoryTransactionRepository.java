@@ -4,7 +4,9 @@ import com.julian.backend.application.repository.TransactionRepository;
 import com.julian.backend.domain.model.Transaction;
 import org.springframework.stereotype.Repository;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -13,10 +15,12 @@ public class InMemoryTransactionRepository implements TransactionRepository {
 
     Map<Long, Transaction> transactionById;
     Map<Long, Double> sumByTransactionId;
+    Map<String, List<Transaction>> transactionsByType;
 
     public InMemoryTransactionRepository() {
         this.transactionById = new HashMap<>();
         this.sumByTransactionId = new HashMap<>();
+        this.transactionsByType = new HashMap<>();
     }
 
     @Override
@@ -30,6 +34,12 @@ public class InMemoryTransactionRepository implements TransactionRepository {
         transactionById.put(transaction.getId(), transaction);
         sumByTransactionId.put(transaction.getId(), newSum);
         addAmountToAncestors(transaction, newSum);
+
+        addInTransactionByType(transaction);
+    }
+
+    private void addInTransactionByType(Transaction transaction) {
+        transactionsByType.computeIfAbsent(transaction.getType(), type -> new ArrayList<>()).add(transaction);
     }
 
     private void substractPreviousSumFromAncestors(Transaction transaction, double previousSum) {
@@ -69,6 +79,6 @@ public class InMemoryTransactionRepository implements TransactionRepository {
 
     @Override
     public List<Transaction> getTransactionsByType(String type) {
-        return List.of();
+        return List.copyOf(transactionsByType.getOrDefault(type, List.of()));
     }
 }

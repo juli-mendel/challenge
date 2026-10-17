@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -15,6 +16,8 @@ public class InMemoryTransactionRepositoryTest {
 
     private static final Long ID = 10L;
     private static final String TYPE = "cars";
+    private static final String OTHER_TYPE = "planes";
+    private static final String EMPTY_TYPE = "";
     private static final Double AMOUNT = 5000.0;
     private static final Long CHILD_ID = 11L;
     private static final Long GRANDCHILD_ID = 12L;
@@ -210,5 +213,47 @@ public class InMemoryTransactionRepositoryTest {
         double expectedChildSum = childAmount + grandchildAmount;
         assertEquals(Optional.of(expectedChildSum), transactionRepository.getTransactionSumById(CHILD_ID));
         assertEquals(Optional.of(AMOUNT), transactionRepository.getTransactionSumById(ID));
+    }
+
+    @Test
+    void givenNoTransactions_whenGetTransactionsByType_thenReturnsEmptyList() {
+        assertEquals(List.of(), transactionRepository.getTransactionsByType(TYPE));
+    }
+
+    @Test
+    void givenOneTransaction_whenGetTransactionsByType_thenReturnsIt() {
+        Transaction transaction = new Transaction(ID, TYPE, AMOUNT, null);
+        transactionRepository.save(transaction);
+
+        assertEquals(List.of(transaction), transactionRepository.getTransactionsByType(TYPE));
+    }
+
+    @Test
+    void givenTwoTransactionsWithSameType_whenGetTransactionsByType_thenReturnsBoth() {
+        Transaction firstTransaction = new Transaction(ID, TYPE, AMOUNT, null);
+        Transaction secondTransaction = new Transaction(UNCONNECTED_ID, TYPE, AMOUNT, null);
+        transactionRepository.save(firstTransaction);
+        transactionRepository.save(secondTransaction);
+
+        assertEquals(List.of(firstTransaction, secondTransaction), transactionRepository.getTransactionsByType(TYPE));
+    }
+
+    @Test
+    void givenTwoTransactionsWithDifferentTypes_whenGetTransactionsByType_thenReturnsOnlyThoseOfEachType() {
+        Transaction transaction = new Transaction(ID, TYPE, AMOUNT, null);
+        Transaction otherTypeTransaction = new Transaction(UNCONNECTED_ID, OTHER_TYPE, AMOUNT, null);
+        transactionRepository.save(transaction);
+        transactionRepository.save(otherTypeTransaction);
+
+        assertEquals(List.of(transaction), transactionRepository.getTransactionsByType(TYPE));
+        assertEquals(List.of(otherTypeTransaction), transactionRepository.getTransactionsByType(OTHER_TYPE));
+    }
+
+    @Test
+    void givenTransactionWithEmptyType_whenGetTransactionsByEmptyType_thenReturnsIt() {
+        Transaction transaction = new Transaction(ID, EMPTY_TYPE, AMOUNT, null);
+        transactionRepository.save(transaction);
+
+        assertEquals(List.of(transaction), transactionRepository.getTransactionsByType(EMPTY_TYPE));
     }
 }
