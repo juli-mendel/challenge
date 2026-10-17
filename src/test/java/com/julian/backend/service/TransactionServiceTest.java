@@ -104,9 +104,11 @@ public class TransactionServiceTest {
     }
 
     @Test
-    void givenTransactionId_whenGetTransactionSum_thenReturnsZero() {
-        when(transactionRepository.existsById(ID)).thenReturn(true);
-        assertEquals(0.0, transactionService.getTransactionSum(ID));
+    void givenTransactionWithoutChildren_whenGetTransactionSum_thenReturnsItsAmount() {
+        Transaction transaction = new Transaction(ID, TYPE, AMOUNT, PARENT_ID);
+        when(transactionRepository.findById(ID)).thenReturn(Optional.of(transaction));
+
+        assertEquals(AMOUNT, transactionService.getTransactionSum(ID));
     }
 
     @Test
