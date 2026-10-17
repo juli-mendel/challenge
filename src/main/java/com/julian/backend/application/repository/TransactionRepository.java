@@ -10,4 +10,6 @@ public interface TransactionRepository {
     boolean existsById(Long id);
 
     Optional<Transaction> findById(Long id);
+
+    Optional<Double> getTransactionSumById(Long id);
 }
