@@ -43,6 +43,20 @@ public class TransactionTest {
     }
 
     @Test
+    void givenNewTransactionWithNegativeAmount_whenGetAmount_thenReturnsAmount() {
+        Transaction transaction = new Transaction(ID, TYPE, -2000.0, PARENT_ID);
+
+        assertEquals(-2000.0, transaction.getAmount());
+    }
+
+    @Test
+    void givenNewTransactionWithZeroAmount_whenGetAmount_thenReturnsAmount() {
+        Transaction transaction = new Transaction(ID, TYPE, 0.0, PARENT_ID);
+
+        assertEquals(0.0, transaction.getAmount());
+    }
+
+    @Test
     void givenNewTransactionWithParentId_whenGetParentId_thenReturnsParentId() {
         Transaction transaction = new Transaction(ID, TYPE, AMOUNT, PARENT_ID);
 
