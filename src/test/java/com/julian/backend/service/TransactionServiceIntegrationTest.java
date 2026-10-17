@@ -9,6 +9,8 @@ import com.julian.backend.infrastructure.db.InMemoryTransactionRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -89,6 +91,8 @@ public class TransactionServiceIntegrationTest {
     void saveTransaction_withNonExistentParentId_shouldThrowParentTransactionNotFoundException() {
         Transaction newTransaction = new Transaction(123L, "cars", 1000.0, 999L);
         assertThrows(ParentTransactionNotFoundException.class, () -> transactionService.saveTransaction(newTransaction));
+        assertThrows(TransactionNotFoundException.class, () -> transactionService.getTransactionSum(123L));
+        assertEquals(List.of(), transactionService.getTransactionsByType("cars"));
     }
 
     @Test
