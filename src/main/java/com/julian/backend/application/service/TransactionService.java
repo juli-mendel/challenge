@@ -16,6 +16,15 @@ public class TransactionService implements SaveTransaction {
 
     @Override
     public void saveTransaction(Transaction transaction) {
+        verifyParentId(transaction);
         transactionRepository.save(transaction);
+    }
+
+    private void verifyParentId(Transaction transaction) {
+        transaction.getParentId().ifPresent(parentId -> {
+            if (!transactionRepository.existsById(parentId)) {
+                throw new IllegalArgumentException("parent transaction " + parentId + " does not exist");
+            }
+        });
     }
 }

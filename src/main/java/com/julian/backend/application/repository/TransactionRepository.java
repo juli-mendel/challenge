@@ -4,4 +4,6 @@ import com.julian.backend.domain.model.Transaction;
 
 public interface TransactionRepository {
     void save(Transaction transaction);
+
+    boolean existsById(Long parentId);
 }
