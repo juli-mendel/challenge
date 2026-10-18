@@ -3,6 +3,7 @@ package com.julian.backend.infrastructure.controller;
 import com.julian.backend.application.exception.TransactionNotFoundException;
 import com.julian.backend.application.usecase.GetTransactionIdsByType;
 import com.julian.backend.application.usecase.GetTransactionSum;
+import com.julian.backend.application.usecase.SaveTransaction;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
@@ -12,7 +13,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.List;
 
 import static org.mockito.Mockito.*;
+import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -27,6 +30,9 @@ public class TransactionControllerTest {
 
     @MockitoBean
     private GetTransactionSum getTransactionSum;
+
+    @MockitoBean
+    private SaveTransaction saveTransaction;
 
     @Test
     void getTransactionIdsByType_whenNoTransactions_thenReturnsEmptyList() throws Exception {
@@ -88,5 +94,22 @@ public class TransactionControllerTest {
         mockMvc.perform(get("/transactions/sum/"))
             .andExpect(status().isNotFound());
         verify(getTransactionSum, never()).getTransactionSum(any());
+    }
+
+    @Test
+    void saveTransaction_withCorrectTransaction_returns200() throws Exception {
+        mockMvc.perform(put("/transactions/1")
+            .contentType(APPLICATION_JSON)
+            .content("""
+                {"amount": 5000.0, "type": "cars"}
+                """))
+            .andExpect(status().isOk());
+    }
+
+    @Test
+    void saveTransaction_withNegativeId_shouldReturnError400() throws Exception {
+        mockMvc.perform(put("/transactions/-1"))
+            .andExpect(status().isBadRequest());
+        verify(saveTransaction, never()).saveTransaction(any());
     }
 }
