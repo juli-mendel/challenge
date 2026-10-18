@@ -11,6 +11,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.mockito.Mockito.*;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
@@ -22,6 +23,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(TransactionController.class)
 public class TransactionControllerTest {
 
+    public static final String BODY_FOR_SAVE_TRANSACTION_WITHOUT_PARENT_ID = """
+        {"amount": 5000.0, "type": "cars"}
+        """;
     @Autowired
     private MockMvc mockMvc;
 
@@ -97,26 +101,78 @@ public class TransactionControllerTest {
     }
 
     @Test
-    void saveTransaction_withCorrectTransaction_returns200() throws Exception {
+    void saveTransaction_withCorrectTransaction_withParentId_returns200() throws Exception {
         mockMvc.perform(put("/transactions/1")
             .contentType(APPLICATION_JSON)
             .content("""
-                {"amount": 5000.0, "type": "cars"}
+                {"amount": 5000.0, "type": "cars", "parent_id": 5}
                 """))
             .andExpect(status().isOk());
+        verify(saveTransaction).saveTransaction(argThat(transaction ->
+            transaction.getId().equals(1L)
+                && transaction.getAmount().equals(5000.0)
+                && transaction.getType().equals("cars")
+                && transaction.getParentId().equals(Optional.of(5L))));
+    }
+
+    @Test
+    void saveTransaction_withCorrectTransaction_withoutParentId_returns200() throws Exception {
+        mockMvc.perform(put("/transactions/1")
+                .contentType(APPLICATION_JSON)
+                .content(BODY_FOR_SAVE_TRANSACTION_WITHOUT_PARENT_ID))
+            .andExpect(status().isOk());
+        verify(saveTransaction).saveTransaction(argThat(transaction ->
+            transaction.getId().equals(1L)
+                && transaction.getAmount().equals(5000.0)
+                && transaction.getType().equals("cars")
+                && transaction.getParentId().equals(Optional.empty())));
     }
 
     @Test
     void saveTransaction_withNegativeId_shouldReturnError400() throws Exception {
-        mockMvc.perform(put("/transactions/-1"))
+        mockMvc.perform(put("/transactions/-1")
+                .contentType(APPLICATION_JSON)
+                .content(BODY_FOR_SAVE_TRANSACTION_WITHOUT_PARENT_ID))
             .andExpect(status().isBadRequest());
         verify(saveTransaction, never()).saveTransaction(any());
     }
 
     @Test
     void saveTransaction_withNonNumericId_shouldReturnError400() throws Exception {
-        mockMvc.perform(put("/transactions/abc"))
+        mockMvc.perform(put("/transactions/abc")
+                .contentType(APPLICATION_JSON)
+                .content(BODY_FOR_SAVE_TRANSACTION_WITHOUT_PARENT_ID))
             .andExpect(status().isBadRequest());
+        verify(saveTransaction, never()).saveTransaction(any());
+    }
+
+    @Test
+    void saveTransaction_withNoAmount_shouldReturnError400() throws Exception {
+        mockMvc.perform(put("/transactions/1")
+                .contentType(APPLICATION_JSON)
+                .content("{\"type\": \"cars\"}"))
+            .andExpect(status().isBadRequest());
+        verify(saveTransaction, never()).saveTransaction(any());
+    }
+
+    @Test
+    void saveTransaction_withNoType_shouldReturnError400() throws Exception {
+        mockMvc.perform(put("/transactions/1")
+                .contentType(APPLICATION_JSON)
+                .content("{\"amount\": 5000.0}"))
+            .andExpect(status().isBadRequest());
+        verify(saveTransaction, never()).saveTransaction(any());
+    }
+
+    @Test
+    void saveTransaction_withParentIdEqualToId_shouldReturns400() throws Exception {
+        mockMvc.perform(put("/transactions/5")
+                .contentType(APPLICATION_JSON)
+                .content("""
+                {"amount": 100.0, "type": "cars", "parent_id": 5}
+                """))
+            .andExpect(status().isBadRequest());
+
         verify(saveTransaction, never()).saveTransaction(any());
     }
 }

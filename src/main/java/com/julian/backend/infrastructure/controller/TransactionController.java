@@ -2,12 +2,14 @@ package com.julian.backend.infrastructure.controller;
 
 import com.julian.backend.application.usecase.GetTransactionIdsByType;
 import com.julian.backend.application.usecase.GetTransactionSum;
+import com.julian.backend.application.usecase.SaveTransaction;
+import com.julian.backend.domain.model.Transaction;
+import com.julian.backend.infrastructure.controller.dto.TransactionRequestDto;
+import com.julian.backend.infrastructure.controller.mapper.TransactionMapper;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.PositiveOrZero;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -16,12 +18,15 @@ public class TransactionController {
 
     private final GetTransactionIdsByType getTransactionIdsByType;
     private final GetTransactionSum getTransactionSum;
+    private final SaveTransaction saveTransaction;
 
     public TransactionController(GetTransactionIdsByType getTransactionIdsByType,
-                                 GetTransactionSum getTransactionSum
+                                 GetTransactionSum getTransactionSum,
+                                 SaveTransaction saveTransaction
                                  ) {
         this.getTransactionIdsByType = getTransactionIdsByType;
         this.getTransactionSum = getTransactionSum;
+        this.saveTransaction =  saveTransaction;
     }
 
     // GET /transaction/type/car -> {[1, 34, 100]}
@@ -37,7 +42,10 @@ public class TransactionController {
     }
 
     @PutMapping("transactions/{id}")
-    public ResponseEntity<Void> saveTransaction(@PathVariable @PositiveOrZero Long id) {
+    public ResponseEntity<Void> saveTransaction(@PathVariable @PositiveOrZero Long id,
+                                                @RequestBody @Valid TransactionRequestDto transactionDto) {
+        Transaction transaction = TransactionMapper.toTransaction(id, transactionDto);
+        saveTransaction.saveTransaction(transaction);
         return ResponseEntity.ok().build();
     }
 }
