@@ -5,6 +5,7 @@ import com.julian.backend.application.usecase.GetTransactionSum;
 import com.julian.backend.application.usecase.SaveTransaction;
 import com.julian.backend.domain.model.Transaction;
 import com.julian.backend.infrastructure.controller.dto.StatusResponseDto;
+import com.julian.backend.infrastructure.controller.dto.SumResponseDto;
 import com.julian.backend.infrastructure.controller.dto.TransactionRequestDto;
 import com.julian.backend.infrastructure.controller.mapper.TransactionMapper;
 import jakarta.validation.Valid;
@@ -38,8 +39,9 @@ public class TransactionController {
 
     // GET /transaction/sum/123 -> 123.0
     @GetMapping("transactions/sum/{id}")
-    public ResponseEntity<Double> getTransactionSum(@PathVariable @PositiveOrZero Long id) {
-        return ResponseEntity.ok(getTransactionSum.getTransactionSum(id));
+    public ResponseEntity<SumResponseDto> getTransactionSum(@PathVariable @PositiveOrZero Long id) {
+        double transactionSum = getTransactionSum.getTransactionSum(id);
+        return ResponseEntity.ok(new SumResponseDto(transactionSum));
     }
 
     @PutMapping("transactions/{id}")

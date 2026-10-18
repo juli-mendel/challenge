@@ -77,7 +77,7 @@ public class TransactionControllerTest {
         when(getTransactionSum.getTransactionSum(validTransactionId)).thenReturn(100.0);
         mockMvc.perform(get("/transactions/sum/1"))
             .andExpect(status().isOk())
-            .andExpect(content().string("100.0"));
+            .andExpect(content().json("{\"sum\": 100.0}"));
     }
 
     @Test
