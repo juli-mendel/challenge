@@ -23,7 +23,7 @@ public class TransactionService implements SaveTransaction, GetTransactionSum, G
     }
 
     @Override
-    public void saveTransaction(Transaction transaction) {
+    public synchronized void saveTransaction(Transaction transaction) {
         verifyParentId(transaction);
         verifyNoCycle(transaction);
         transactionRepository.save(transaction);
@@ -49,13 +49,13 @@ public class TransactionService implements SaveTransaction, GetTransactionSum, G
     }
 
     @Override
-    public double getTransactionSum(Long id) {
+    public synchronized double getTransactionSum(Long id) {
         return transactionRepository.getTransactionSumById(id)
                 .orElseThrow(() -> new TransactionNotFoundException(id));
     }
 
     @Override
-    public List<Transaction> getTransactionsByType(String type) {
+    public synchronized List<Transaction> getTransactionsByType(String type) {
         return transactionRepository.getTransactionsByType(type);
     }
 }
