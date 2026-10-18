@@ -16,83 +16,83 @@ public class TransactionTest {
     private static final Long PARENT_ID = 5L;
 
     @Test
-    void givenNewTransactionWithId_whenGetId_thenReturnsId() {
+    void getId_givenNewTransactionWithId_thenReturnsId() {
         Transaction transaction = new Transaction(ID, TYPE, AMOUNT, PARENT_ID);
 
         assertEquals(ID, transaction.getId());
     }
 
     @Test
-    void givenNewTransactionWithNegativeId_thenThrowsInvalidTransactionException() {
+    void createTransaction_givenNegativeId_thenThrowsInvalidTransactionException() {
         assertThrows(InvalidTransactionException.class, () -> new Transaction(-1L, TYPE, AMOUNT, PARENT_ID));
     }
 
     @Test
-    void givenNewTransactionWithType_whenGetType_thenReturnsType() {
+    void getType_givenNewTransactionWithType_thenReturnsType() {
         Transaction transaction = new Transaction(ID, TYPE, AMOUNT, PARENT_ID);
 
         assertEquals(TYPE, transaction.getType());
     }
 
     @Test
-    void givenNewTransactionWithEmptyType_whenGetType_thenReturnsEmptyType() {
+    void getType_givenNewTransactionWithEmptyType_thenReturnsEmptyType() {
         Transaction transaction = new Transaction(ID, "", AMOUNT, PARENT_ID);
 
         assertEquals("", transaction.getType());
     }
 
     @Test
-    void givenNewTransactionWithAmount_whenGetAmount_thenReturnsAmount() {
+    void getAmount_givenNewTransactionWithAmount_thenReturnsAmount() {
         Transaction transaction = new Transaction(ID, TYPE, AMOUNT, PARENT_ID);
 
         assertEquals(AMOUNT, transaction.getAmount());
     }
 
     @Test
-    void givenNewTransactionWithNegativeAmount_whenGetAmount_thenReturnsAmount() {
+    void getAmount_givenNewTransactionWithNegativeAmount_thenReturnsAmount() {
         Transaction transaction = new Transaction(ID, TYPE, -2000.0, PARENT_ID);
 
         assertEquals(-2000.0, transaction.getAmount());
     }
 
     @Test
-    void givenNewTransactionWithZeroAmount_whenGetAmount_thenReturnsAmount() {
+    void getAmount_givenNewTransactionWithZeroAmount_thenReturnsAmount() {
         Transaction transaction = new Transaction(ID, TYPE, 0.0, PARENT_ID);
 
         assertEquals(0.0, transaction.getAmount());
     }
 
     @Test
-    void givenNewTransactionWithParentId_whenGetParentId_thenReturnsParentId() {
+    void getParentId_givenNewTransactionWithParentId_thenReturnsParentId() {
         Transaction transaction = new Transaction(ID, TYPE, AMOUNT, PARENT_ID);
 
         assertEquals(Optional.of(PARENT_ID), transaction.getParentId());
     }
 
     @Test
-    void givenNewTransactionWithoutParentId_whenGetParentId_thenReturnsEmpty() {
+    void getParentId_givenNewTransactionWithoutParentId_thenReturnsEmpty() {
         Transaction transaction = new Transaction(ID, TYPE, AMOUNT, null);
 
         assertEquals(Optional.empty(), transaction.getParentId());
     }
 
     @Test
-    void givenNullId_whenCreateTransaction_thenThrowsInvalidTransactionException() {
+    void createTransaction_givenNullId_thenThrowsInvalidTransactionException() {
         assertThrows(InvalidTransactionException.class, () -> new Transaction(null, TYPE, AMOUNT, PARENT_ID));
     }
 
     @Test
-    void givenNullType_whenCreateTransaction_thenThrowsInvalidTransactionException() {
+    void createTransaction_givenNullType_thenThrowsInvalidTransactionException() {
         assertThrows(InvalidTransactionException.class, () -> new Transaction(ID, null, AMOUNT, PARENT_ID));
     }
 
     @Test
-    void givenNullAmount_whenCreateTransaction_thenThrowsInvalidTransactionException() {
+    void createTransaction_givenNullAmount_thenThrowsInvalidTransactionException() {
         assertThrows(InvalidTransactionException.class, () -> new Transaction(ID, TYPE, null, PARENT_ID));
     }
 
     @Test
-    void givenParentIdEqualToId_whenCreateTransaction_thenThrowsInvalidTransactionException() {
+    void createTransaction_givenParentIdEqualToId_thenThrowsInvalidTransactionException() {
         assertThrows(InvalidTransactionException.class, () -> new Transaction(ID, TYPE, AMOUNT, ID));
     }
 }

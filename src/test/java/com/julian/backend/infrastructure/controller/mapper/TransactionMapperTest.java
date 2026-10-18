@@ -15,7 +15,7 @@ public class TransactionMapperTest {
     private static final Long PARENT_ID = 5L;
 
     @Test
-    void givenRequestWithParent_whenToTransaction_thenMapsAllFields() {
+    void toTransaction_givenRequestWithParent_thenMapsAllFields() {
         TransactionRequestDto request = new TransactionRequestDto(AMOUNT, TYPE, PARENT_ID);
 
         Transaction transaction = TransactionMapper.toTransaction(ID, request);
@@ -27,7 +27,7 @@ public class TransactionMapperTest {
     }
 
     @Test
-    void givenRequestWithoutParent_whenToTransaction_thenParentIdIsEmpty() {
+    void toTransaction_givenRequestWithoutParent_thenParentIdIsEmpty() {
         TransactionRequestDto request = new TransactionRequestDto(AMOUNT, TYPE, null);
 
         Transaction transaction = TransactionMapper.toTransaction(ID, request);

@@ -38,7 +38,7 @@ public class TransactionServiceTest {
     }
 
     @Test
-    void givenNewTransaction_whenSaveTransaction_thenSavesItInRepository() {
+    void saveTransaction_givenNewTransaction_thenSavesItInRepository() {
         Transaction transaction = new Transaction(ID, TYPE, AMOUNT, null);
 
         transactionService.saveTransaction(transaction);
@@ -47,7 +47,7 @@ public class TransactionServiceTest {
     }
 
     @Test
-    void givenTransactionWithExistingParent_whenSaveTransaction_thenSavesItInRepository() {
+    void saveTransaction_givenTransactionWithExistingParent_thenSavesItInRepository() {
         Transaction transaction = new Transaction(ID, TYPE, AMOUNT, PARENT_ID);
         when(transactionRepository.existsById(PARENT_ID)).thenReturn(true);
 
@@ -57,7 +57,7 @@ public class TransactionServiceTest {
     }
 
     @Test
-    void givenTransactionWithNonExistingParent_whenSaveTransaction_thenThrowsParentTransactionNotFoundException() {
+    void saveTransaction_givenTransactionWithNonExistingParent_thenThrowsParentTransactionNotFoundException() {
         Transaction transaction = new Transaction(ID, TYPE, AMOUNT, PARENT_ID);
         when(transactionRepository.existsById(PARENT_ID)).thenReturn(false);
 
@@ -66,7 +66,7 @@ public class TransactionServiceTest {
     }
 
     @Test
-    void givenParentWhoseParentIsTheTransaction_whenSaveTransaction_thenThrowsTransactionCycleException() {
+    void saveTransaction_givenParentWhoseParentIsTheTransaction_thenThrowsTransactionCycleException() {
         Transaction transaction = new Transaction(ID, TYPE, AMOUNT, PARENT_ID);
         Transaction parent = new Transaction(PARENT_ID, TYPE, AMOUNT, ID);
         when(transactionRepository.existsById(PARENT_ID)).thenReturn(true);
@@ -77,7 +77,7 @@ public class TransactionServiceTest {
     }
 
     @Test
-    void givenAncestorWhoseParentIsTheTransaction_whenSaveTransaction_thenThrowsTransactionCycleException() {
+    void saveTransaction_givenAncestorWhoseParentIsTheTransaction_thenThrowsTransactionCycleException() {
         Transaction transaction = new Transaction(ID, TYPE, AMOUNT, PARENT_ID);
         Transaction parent = new Transaction(PARENT_ID, TYPE, AMOUNT, GRANDPARENT_ID);
         Transaction grandparent = new Transaction(GRANDPARENT_ID, TYPE, AMOUNT, ID);
@@ -90,7 +90,7 @@ public class TransactionServiceTest {
     }
 
     @Test
-    void givenAncestorsWithoutCycle_whenSaveTransaction_thenSavesItInRepository() {
+    void saveTransaction_givenAncestorsWithoutCycle_thenSavesItInRepository() {
         Transaction transaction = new Transaction(ID, TYPE, AMOUNT, PARENT_ID);
         Transaction parent = new Transaction(PARENT_ID, TYPE, AMOUNT, GRANDPARENT_ID);
         Transaction grandparent = new Transaction(GRANDPARENT_ID, TYPE, AMOUNT, null);
@@ -104,7 +104,7 @@ public class TransactionServiceTest {
     }
 
     @Test
-    void givenExistingTransaction_whenGetTransactionSum_thenReturnsSumFromRepository() {
+    void getTransactionSum_givenExistingTransaction_thenReturnsSumFromRepository() {
         double repositorySum = 6200.0;
         when(transactionRepository.getTransactionSumById(ID)).thenReturn(Optional.of(repositorySum));
 
@@ -112,17 +112,17 @@ public class TransactionServiceTest {
     }
 
     @Test
-    void givenTransactionId_whenGetTransactionSum_withNonExistentTransactionId_thenThrowTransactionNotFoundException() {
+    void getTransactionSum_withNonExistentTransactionId_thenThrowTransactionNotFoundException() {
         assertThrows(TransactionNotFoundException.class, () -> transactionService.getTransactionSum(ID));
     }
 
     @Test
-    void givenType_whenGetTransactionIdsByType_withNonExistentType_shouldReturnEmptyList() {
+    void getTransactionIdsByType_withNonExistentType_shouldReturnEmptyList() {
         assertEquals(List.of(), transactionService.getTransactionIdsByType(TYPE));
     }
 
     @Test
-    void givenType_whenThereIsOneTransactionWithThatType_shouldReturnAListWithThatTransaction() {
+    void getTransactionIdsByType_givenThereIsOneTransactionWithThatType_shouldReturnAListWithThatTransaction() {
         Transaction transaction = new Transaction(ID, TYPE, AMOUNT, null);
         when(transactionRepository.getTransactionIdsByType(TYPE)).thenReturn(List.of(transaction.getId()));
 

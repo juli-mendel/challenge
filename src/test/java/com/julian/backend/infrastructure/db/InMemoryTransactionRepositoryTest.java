@@ -32,7 +32,7 @@ public class InMemoryTransactionRepositoryTest {
     }
 
     @Test
-    void givenSavedTransaction_whenFindById_thenReturnsTransaction() {
+    void findById_givenSavedTransactionId_thenReturnsTransaction() {
         Transaction transaction = new Transaction(ID, TYPE, AMOUNT, null);
 
         transactionRepository.save(transaction);
@@ -41,12 +41,12 @@ public class InMemoryTransactionRepositoryTest {
     }
 
     @Test
-    void givenNonExistingId_whenFindById_thenReturnsEmpty() {
+    void findById_givenNonExistingId_thenReturnsEmpty() {
         assertEquals(Optional.empty(), transactionRepository.findById(ID));
     }
 
     @Test
-    void givenSavedTransaction_whenExistsById_thenReturnsTrue() {
+    void existsById_givenSavedTransactionId_thenReturnsTrue() {
         Transaction transaction = new Transaction(ID, TYPE, AMOUNT, null);
 
         transactionRepository.save(transaction);
@@ -55,12 +55,12 @@ public class InMemoryTransactionRepositoryTest {
     }
 
     @Test
-    void givenNonExistingId_whenExistsById_thenReturnsFalse() {
+    void existsById_givenNonExistingId_thenReturnsFalse() {
         assertFalse(transactionRepository.existsById(ID));
     }
 
     @Test
-    void givenChildTransaction_whenGetTransactionSumById_thenParentSumIncludesChild() {
+    void getTransactionSumById_givenTransactionWithOneChild_thenParentSumIncludesChild() {
         transactionRepository.save(new Transaction(ID, TYPE, AMOUNT, null));
         transactionRepository.save(new Transaction(CHILD_ID, TYPE, 1000.0, ID));
 
@@ -69,7 +69,7 @@ public class InMemoryTransactionRepositoryTest {
     }
 
     @Test
-    void givenChildAndGrandchild_whenGetTransactionSumById_thenSumsTransitively() {
+    void getTransactionSumById_givenChildAndGrandchild_thenSumsTransitively() {
         transactionRepository.save(new Transaction(ID, TYPE, AMOUNT, null));
 
         double childAmount = 1000.0;
@@ -86,7 +86,7 @@ public class InMemoryTransactionRepositoryTest {
     }
 
     @Test
-    void givenTwoChildren_whenGetTransactionSumById_thenParentSumIncludesBoth() {
+    void getTransactionSumById_givenATransactionWithTwoChildren_thenParentSumIncludesBoth() {
         transactionRepository.save(new Transaction(ID, TYPE, AMOUNT, null));
 
         double firstChildAmount = 1000.0;
@@ -100,7 +100,7 @@ public class InMemoryTransactionRepositoryTest {
     }
 
     @Test
-    void givenUnconnectedTransaction_whenGetTransactionSumById_thenItIsNotIncluded() {
+    void getTransactionSumById_givenUnconnectedTransaction_thenItIsNotIncluded() {
         transactionRepository.save(new Transaction(ID, TYPE, AMOUNT, null));
 
         double childAmount = 1000.0;
@@ -115,7 +115,7 @@ public class InMemoryTransactionRepositoryTest {
     }
 
     @Test
-    void givenChildWithNegativeAmount_whenGetTransactionSumById_thenParentSumIsReduced() {
+    void getTransactionSumById_givenChildWithNegativeAmount_thenParentSumIsReduced() {
         transactionRepository.save(new Transaction(ID, TYPE, AMOUNT, null));
 
         double childAmount = -2000.0;
@@ -126,7 +126,7 @@ public class InMemoryTransactionRepositoryTest {
     }
 
     @Test
-    void givenChildWithZeroAmount_whenGetTransactionSumById_thenParentSumIsUnchanged() {
+    void getTransactionSumById_givenChildWithZeroAmount_thenParentSumIsUnchanged() {
         transactionRepository.save(new Transaction(ID, TYPE, AMOUNT, null));
 
         double childAmount = 0.0;
@@ -136,7 +136,7 @@ public class InMemoryTransactionRepositoryTest {
     }
 
     @Test
-    void givenExistingTransactionWithSameParentAndNewAmount_whenSave_thenSumsAreUpdated() {
+    void save_givenExistingTransactionIdWithSameParentAndNewAmount_thenSumsAreUpdated() {
         transactionRepository.save(new Transaction(ID, TYPE, AMOUNT, null));
 
         double oldChildAmount = 1000.0;
@@ -156,7 +156,7 @@ public class InMemoryTransactionRepositoryTest {
     }
 
     @Test
-    void givenExistingTransactionWithSameParentAndNewNegativeAmount_whenSave_thenSumsAreUpdated() {
+    void save_givenExistingTransactionIdWithSameParentAndNewNegativeAmount_thenSumsAreUpdated() {
         transactionRepository.save(new Transaction(ID, TYPE, AMOUNT, null));
 
         double oldChildAmount = 1000.0;
@@ -176,7 +176,7 @@ public class InMemoryTransactionRepositoryTest {
     }
 
     @Test
-    void givenExistingTransactionWithNewParent_whenSave_thenSubtreeSumMovesToNewParent() {
+    void save_givenExistingTransactionIdWithNewParent_thenSubtreeSumMovesToNewParent() {
         transactionRepository.save(new Transaction(ID, TYPE, AMOUNT, null));
 
         double childAmount = 1000.0;
@@ -199,7 +199,7 @@ public class InMemoryTransactionRepositoryTest {
     }
 
     @Test
-    void givenExistingTransactionWithParentRemoved_whenSave_thenSubtreeSumIsRemovedFromOldParent() {
+    void save_givenExistingTransactionIdWithParentRemoved_thenSubtreeSumIsRemovedFromOldParent() {
         transactionRepository.save(new Transaction(ID, TYPE, AMOUNT, null));
 
         double childAmount = 1000.0;
@@ -216,12 +216,12 @@ public class InMemoryTransactionRepositoryTest {
     }
 
     @Test
-    void givenNoTransactions_whenGetTransactionIdsByType_thenReturnsEmptyList() {
+    void getTransactionIdsByType_givenNoTransactions_thenReturnsEmptyList() {
         assertEquals(List.of(), transactionRepository.getTransactionIdsByType(TYPE));
     }
 
     @Test
-    void givenOneTransaction_whenGetTransactionIdsByType_thenReturnsIt() {
+    void getTransactionIdsByType_withOneTransactionWithThatType_thenReturnsIt() {
         Transaction transaction = new Transaction(ID, TYPE, AMOUNT, null);
         transactionRepository.save(transaction);
 
@@ -229,7 +229,7 @@ public class InMemoryTransactionRepositoryTest {
     }
 
     @Test
-    void givenTwoTransactionsWithSameType_whenGetTransactionIdsByType_thenReturnsBoth() {
+    void getTransactionIdsByType_givenTwoTransactionsWithSameType_thenReturnsBoth() {
         Transaction firstTransaction = new Transaction(ID, TYPE, AMOUNT, null);
         Transaction secondTransaction = new Transaction(UNCONNECTED_ID, TYPE, AMOUNT, null);
         transactionRepository.save(firstTransaction);
@@ -239,7 +239,7 @@ public class InMemoryTransactionRepositoryTest {
     }
 
     @Test
-    void givenTwoTransactionsWithDifferentTypes_whenGetTransactionIdsByType_thenReturnsOnlyThoseOfEachType() {
+    void getTransactionIdsByType_givenTwoTransactionsWithDifferentTypes_thenReturnsOnlyThoseOfEachType() {
         Transaction transaction = new Transaction(ID, TYPE, AMOUNT, null);
         Transaction otherTypeTransaction = new Transaction(UNCONNECTED_ID, OTHER_TYPE, AMOUNT, null);
         transactionRepository.save(transaction);
@@ -250,7 +250,7 @@ public class InMemoryTransactionRepositoryTest {
     }
 
     @Test
-    void givenTransactionWithEmptyType_whenGetTransactionsByEmptyType_thenReturnsIt() {
+    void getTransactionIdsByType_givenTransactionWithEmptyType_thenReturnsIt() {
         Transaction transaction = new Transaction(ID, EMPTY_TYPE, AMOUNT, null);
         transactionRepository.save(transaction);
 
@@ -258,7 +258,7 @@ public class InMemoryTransactionRepositoryTest {
     }
 
     @Test
-    void givenExistingTransactionWithSameType_whenSave_thenItAppearsOnceWithItsNewVersion() {
+    void save_givenExistingTransactionIdWithSameType_thenItAppearsOnceWithItsNewVersion() {
         transactionRepository.save(new Transaction(ID, TYPE, AMOUNT, null));
 
         Transaction updatedTransaction = new Transaction(ID, TYPE, 3000.0, null);
@@ -268,7 +268,7 @@ public class InMemoryTransactionRepositoryTest {
     }
 
     @Test
-    void givenExistingTransactionWithNewType_whenSave_thenItMovesFromOldTypeToNewType() {
+    void save_givenExistingTransactionIdWithNewType_thenItMovesFromOldTypeToNewType() {
         transactionRepository.save(new Transaction(ID, TYPE, AMOUNT, null));
 
         Transaction updatedTransaction = new Transaction(ID, OTHER_TYPE, AMOUNT, null);
