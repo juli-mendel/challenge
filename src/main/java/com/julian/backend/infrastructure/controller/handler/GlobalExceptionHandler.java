@@ -1,5 +1,7 @@
 package com.julian.backend.infrastructure.controller.handler;
 
+import com.julian.backend.application.exception.ParentTransactionNotFoundException;
+import com.julian.backend.application.exception.TransactionCycleException;
 import com.julian.backend.application.exception.TransactionNotFoundException;
 import com.julian.backend.domain.exception.InvalidTransactionException;
 import com.julian.backend.infrastructure.controller.dto.ErrorResponseDto;
@@ -35,6 +37,28 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(InvalidTransactionException.class)
     public ResponseEntity<ErrorResponseDto> handleInvalidTransactionException(InvalidTransactionException ex) {
+        int errorCode = 400;
+        ErrorResponseDto responseDto = new ErrorResponseDto(
+            "Bad Request Error",
+            ex.getMessage(),
+            String.valueOf(errorCode)
+        );
+        return ResponseEntity.badRequest().body(responseDto);
+    }
+
+    @ExceptionHandler(ParentTransactionNotFoundException.class)
+    public ResponseEntity<ErrorResponseDto> handleParentTransactionNotFoundException(ParentTransactionNotFoundException ex) {
+        int errorCode = 400;
+        ErrorResponseDto responseDto = new ErrorResponseDto(
+            "Bad Request Error",
+            ex.getMessage(),
+            String.valueOf(errorCode)
+        );
+        return ResponseEntity.badRequest().body(responseDto);
+    }
+
+    @ExceptionHandler(TransactionCycleException.class)
+    public ResponseEntity<ErrorResponseDto> handleTransactionCycleException(TransactionCycleException ex) {
         int errorCode = 400;
         ErrorResponseDto responseDto = new ErrorResponseDto(
             "Bad Request Error",

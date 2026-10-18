@@ -1,5 +1,7 @@
 package com.julian.backend.infrastructure.controller;
 
+import com.julian.backend.application.exception.ParentTransactionNotFoundException;
+import com.julian.backend.application.exception.TransactionCycleException;
 import com.julian.backend.application.exception.TransactionNotFoundException;
 import com.julian.backend.application.usecase.GetTransactionIdsByType;
 import com.julian.backend.application.usecase.GetTransactionSum;
@@ -174,5 +176,31 @@ public class TransactionControllerTest {
             .andExpect(status().isBadRequest());
 
         verify(saveTransaction, never()).saveTransaction(any());
+    }
+
+    @Test
+    void saveTransaction_givenNonExistentParent_thenReturns400() throws Exception {
+        doThrow(new ParentTransactionNotFoundException(5L))
+            .when(saveTransaction).saveTransaction(any());
+
+        mockMvc.perform(put("/transactions/1")
+                .contentType(APPLICATION_JSON)
+                .content("""
+                {"amount": 5000.0, "type": "cars", "parent_id": 5}
+                """))
+            .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void saveTrasnaction_givenCycle_thenReturns400() throws Exception {
+        doThrow(new TransactionCycleException(1L, 5L))
+            .when(saveTransaction).saveTransaction(any());
+
+        mockMvc.perform(put("/transactions/1")
+                .contentType(APPLICATION_JSON)
+                .content("""
+                {"amount": 5000.0, "type": "cars", "parent_id": 5}
+                """))
+            .andExpect(status().isBadRequest());
     }
 }
