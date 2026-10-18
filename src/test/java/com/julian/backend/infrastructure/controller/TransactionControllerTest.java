@@ -112,4 +112,11 @@ public class TransactionControllerTest {
             .andExpect(status().isBadRequest());
         verify(saveTransaction, never()).saveTransaction(any());
     }
+
+    @Test
+    void saveTransaction_withNonNumericId_shouldReturnError400() throws Exception {
+        mockMvc.perform(put("/transactions/abc"))
+            .andExpect(status().isBadRequest());
+        verify(saveTransaction, never()).saveTransaction(any());
+    }
 }
