@@ -1,8 +1,15 @@
 # Backend API
 
+Backend que almacena transacciones y permite consultar su suma total y tipos.
+
+## Requisitos
+- Java 17
+- Maven
+- Docker (opcional)
+
 ## Arquitectura del proyecto
 
-El proyecto está desarrollado en Java 17, utilizando Spring Boot como framework principal. La arquitectura busca seguir el patrón de Arquitectura Hexagonal y se organiza en capas para mantener una separación clara de responsabilidades.
+El proyecto está desarrollado en Java, utilizando Spring Boot como framework principal. La arquitectura busca seguir el patrón de Arquitectura Hexagonal y se organiza en capas para mantener una separación clara de responsabilidades.
 
 - Dominio: 
   - Contiene la entidad Transaction que valida sus propios invariantes (id no negativo, campos obligatorios, `parent_id` distinto del id).
@@ -15,7 +22,7 @@ El proyecto está desarrollado en Java 17, utilizando Spring Boot como framework
 - Infraestructura
   - Contiene el controller REST, con sus DTOs y el mapper.
   - Define el `GlobalExceptionHandler`.
-  - Implementa la base de datos en memoria.
+  - Implementa el repositorio en memoria.
   - Se encuentra en el paquete `com.julian.backend.infrastructure`.
 
 ## Endpoints
@@ -24,20 +31,20 @@ El proyecto cuenta con tres endpoints. Para más detalle referirse a la sección
 
 ### PUT /transactions/$transaction_id
 ```
-body: { "amount":double,"type":string,"parent_id":long }
+body: { "amount":double,"type":string, (Opcional) "parent_id":long }
 ```
 
 Actualiza o crea una nueva transacción.
 
 ### GET /transactions/types/$type
 
-Devuelve una lista de las transacciones que contengan un tipo
+Devuelve una lista de ids de las transacciones que contengan un tipo
 
-### GET /transactions/sum
+### GET /transactions/sum/$transaction_id
 
 Devuelve la suma total de las transacciones conectadas transitivamente por su parent_id.
 
-## Como ejecutarlo
+## Cómo ejecutarlo
 Para ejecutar la aplicación se puede hacer descargando el proyecto, y desde el directorio raíz ejecutar el siguiente comando:
 ```bash
 ./mvnw spring-boot:run
@@ -49,11 +56,31 @@ docker build -t challenge-mendel .
 docker run -p 8080:8080 challenge-mendel
 ```
 
-## Swagger
-Una vez el proyecto levantado, se puede acceder a la documentación de la API a través de la siguiente URL:
+Una vez corriendo el proyecto, se puede acceder probar los endpoints con cURL:
+
 ```bash
-http://localhost:8080/swagger-ui.html
+curl -i -X PUT localhost:8080/transactions/10 \
+     -H 'Content-Type: application/json' \
+     -d '{"amount": 5000, "type": "cars"}'
+
+curl -i -X PUT localhost:8080/transactions/11 \
+     -H 'Content-Type: application/json' \
+     -d '{"amount": 10000, "type": "shopping", "parent_id": 10}'
+
+curl -i localhost:8080/transactions/types/cars
+
+curl -i localhost:8080/transactions/sum/10
 ```
+
+## Test
+
+Para ejecutar los test se puede hacer descargando el proyecto, y desde el directorio raíz ejecutar el siguiente comando:
+```bash
+./mvnw test
+```
+
+## Swagger
+Una vez el proyecto levantado, se puede acceder a la documentación de la API a través de http://localhost:8080/swagger-ui.html
 
 ## Información adicional
 

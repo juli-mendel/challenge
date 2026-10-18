@@ -28,11 +28,11 @@ Voy a basarme en una arquitectura hexagonal (siguiendo clean architecture).
      
 
 De esta manera podemos abstraer el dominio de la infraestructura.
-Para la aplicación es agnósitco el tipo de "storage" que se usará. Podríamos cambiar de una base de datos en memoria a una base de datos relacional.
+Para la aplicación es agnóstica el tipo de "storage" que se usará. Podríamos cambiar de una base de datos en memoria a una base de datos relacional.
 
 ### GetSum: Dado un transactionId, obtengo la suma de todos los hijos conectados por parentId transitivamente.
 
-Con respecto a la decisión de tener transactionSumById. Encontré una solución cuya complejidad es O(log n) para la actualización si los datos estan bien distribuidos (O(n) si sólo es una lista enlazada) y O(1) para la consulta.
+Con respecto a la decisión de tener transactionSumById. Encontré una solución cuya complejidad es O(h) (h altura del arbol) para la actualización y O(1) para la consulta.
 Si cada vez que se consulta GetSum se tiene que recorrer todas las transacciones, reconstruir el árbol y recién ahí consultar la suma es ineficiente a medida que crecen las transacciones.
 
 Cuando se inserta una nueva transacción, los costos deben actualizarse. Para esto alcanza con estos casos:
@@ -56,7 +56,7 @@ En el caso 3, es restar la suma de la versión anterior de la transacción actua
 5. type puede ser el string vacío.
 6. Transaction va a fallar si parentId es igual al transaction id. De todas formas, el parentId tiene que existir, por lo que no debería pasar en el negocio de que parentId y transaction id sean iguales.
 7. Si el type no fue registrado aún, el getByType devuelve un array vacío.
-8. Asumo que no habrán IDs negativos.
+8. Asumo que no habrá IDs negativos.
 
 ## Decisiones
 1. existsById únicamente pregunta si existe la key en el mapa en memoria. Podría reemplazarse por obtener la transacción y ver que sea distinto de Optional.empty().
