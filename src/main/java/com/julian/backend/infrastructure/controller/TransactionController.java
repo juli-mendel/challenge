@@ -44,6 +44,7 @@ public class TransactionController {
         return ResponseEntity.ok(new SumResponseDto(transactionSum));
     }
 
+    // PUT /transaction/123 body: {"amount": "1000", "type":"car"} -> {"status":"ok"}
     @PutMapping("transactions/{id}")
     public ResponseEntity<StatusResponseDto> saveTransaction(@PathVariable @PositiveOrZero Long id,
                                                 @RequestBody @Valid TransactionRequestDto transactionDto) {
