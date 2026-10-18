@@ -30,7 +30,7 @@ public class TransactionController {
     }
 
     // GET /transaction/type/car -> {[1, 34, 100]}
-    @GetMapping("transactions/type/{type}")
+    @GetMapping("transactions/types/{type}")
     public ResponseEntity<List<Long>> getTransactionIdsByType(@PathVariable String type) {
         return ResponseEntity.ok(getTransactionIdsByType.getTransactionIdsByType(type));
     }

@@ -43,14 +43,14 @@ public class TransactionControllerTest {
     @Test
     void getTransactionIdsByType_whenNoTransactions_thenReturnsEmptyList() throws Exception {
         when(getTransactionIdsByType.getTransactionIdsByType("someType")).thenReturn(List.of());
-        mockMvc.perform(get("/transactions/type/someType"))
+        mockMvc.perform(get("/transactions/types/someType"))
             .andExpect(status().isOk())
             .andExpect(content().json("[]"));
     }
 
     @Test
     void givenNoType_whenGetTransactionIdsByType_thenReturnsError404() throws Exception {
-        mockMvc.perform(get("/transactions/type/"))
+        mockMvc.perform(get("/transactions/types/"))
             .andExpect(status().isNotFound());
 
         verify(getTransactionIdsByType, never()).getTransactionIdsByType(any());
@@ -59,7 +59,7 @@ public class TransactionControllerTest {
     @Test
     void getTransactionIdsByType_withExistentType_thenReturnsIdsList() throws Exception {
         when(getTransactionIdsByType.getTransactionIdsByType("someType")).thenReturn(List.of(1L, 2L, 3L));
-        mockMvc.perform(get("/transactions/type/someType"))
+        mockMvc.perform(get("/transactions/types/someType"))
             .andExpect(status().isOk())
             .andExpect(content().json("[1, 2 ,3]"));
     }
