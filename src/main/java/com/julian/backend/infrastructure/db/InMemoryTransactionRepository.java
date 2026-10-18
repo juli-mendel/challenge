@@ -74,9 +74,7 @@ public class InMemoryTransactionRepository implements TransactionRepository {
     }
 
     @Override
-    public List<Transaction> getTransactionsByType(String type) {
-        return transactionIdsByType.getOrDefault(type, Set.of()).stream()
-                .map(transactionById::get)
-                .toList();
+    public List<Long> getTransactionIdsByType(String type) {
+        return transactionIdsByType.getOrDefault(type, Set.of()).stream().toList();
     }
 }

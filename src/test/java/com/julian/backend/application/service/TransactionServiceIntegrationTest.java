@@ -3,7 +3,6 @@ package com.julian.backend.application.service;
 import com.julian.backend.application.exception.ParentTransactionNotFoundException;
 import com.julian.backend.application.exception.TransactionCycleException;
 import com.julian.backend.application.exception.TransactionNotFoundException;
-import com.julian.backend.application.service.TransactionService;
 import com.julian.backend.domain.model.Transaction;
 import com.julian.backend.infrastructure.db.InMemoryTransactionRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -92,7 +91,7 @@ public class TransactionServiceIntegrationTest {
         Transaction newTransaction = new Transaction(123L, "cars", 1000.0, 999L);
         assertThrows(ParentTransactionNotFoundException.class, () -> transactionService.saveTransaction(newTransaction));
         assertThrows(TransactionNotFoundException.class, () -> transactionService.getTransactionSum(123L));
-        assertEquals(List.of(), transactionService.getTransactionsByType("cars"));
+        assertEquals(List.of(), transactionService.getTransactionIdsByType("cars"));
     }
 
     @Test
@@ -129,8 +128,8 @@ public class TransactionServiceIntegrationTest {
         Transaction updatedTransaction = new Transaction(10L, "planes", 1000.0, null);
         transactionService.saveTransaction(updatedTransaction);
 
-        assertEquals(List.of(otherCar), transactionService.getTransactionsByType("cars"));
-        assertEquals(List.of(updatedTransaction), transactionService.getTransactionsByType("planes"));
+        assertEquals(List.of(otherCar.getId()), transactionService.getTransactionIdsByType("cars"));
+        assertEquals(List.of(updatedTransaction.getId()), transactionService.getTransactionIdsByType("planes"));
     }
 
     @Test

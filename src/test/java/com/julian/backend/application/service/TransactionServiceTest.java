@@ -117,19 +117,19 @@ public class TransactionServiceTest {
     }
 
     @Test
-    void givenType_whenGetTransactionsByType_withNonExistentType_shouldReturnEmptyList() {
-        assertEquals(List.of(), transactionService.getTransactionsByType(TYPE));
+    void givenType_whenGetTransactionIdsByType_withNonExistentType_shouldReturnEmptyList() {
+        assertEquals(List.of(), transactionService.getTransactionIdsByType(TYPE));
     }
 
     @Test
     void givenType_whenThereIsOneTransactionWithThatType_shouldReturnAListWithThatTransaction() {
         Transaction transaction = new Transaction(ID, TYPE, AMOUNT, null);
-        when(transactionRepository.getTransactionsByType(TYPE)).thenReturn(List.of(transaction));
+        when(transactionRepository.getTransactionIdsByType(TYPE)).thenReturn(List.of(transaction.getId()));
 
-        List<Transaction> transactions = transactionService.getTransactionsByType(TYPE);
+        List<Long> transactionIds = transactionService.getTransactionIdsByType(TYPE);
 
-        assertEquals(1, transactions.size());
-        assertEquals(transaction, transactions.get(0));
+        assertEquals(1, transactionIds.size());
+        assertEquals(transaction.getId(), transactionIds.get(0));
     }
 
     private void transactionWasSaved(Transaction transaction) {

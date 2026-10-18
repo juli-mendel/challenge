@@ -39,10 +39,10 @@ public interface TransactionRepository {
     Optional<Double> getTransactionSumById(Long id);
 
     /**
-     * Returns the transactions with exactly the given type.
+     * Returns the transactions ids with exactly the given type.
      *
      * @param type the transaction type
-     * @return the transactions with that type, or an empty list if there are none
+     * @return the transactions ids with that type, or an empty list if there are none
      */
-    List<Transaction> getTransactionsByType(String type);
+    List<Long> getTransactionIdsByType(String type);
 }

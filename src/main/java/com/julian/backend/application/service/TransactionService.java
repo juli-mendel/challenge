@@ -5,7 +5,7 @@ import com.julian.backend.application.exception.TransactionCycleException;
 import com.julian.backend.application.exception.TransactionNotFoundException;
 import com.julian.backend.application.repository.TransactionRepository;
 import com.julian.backend.application.usecase.GetTransactionSum;
-import com.julian.backend.application.usecase.GetTransactionsByType;
+import com.julian.backend.application.usecase.GetTransactionIdsByType;
 import com.julian.backend.application.usecase.SaveTransaction;
 import com.julian.backend.domain.model.Transaction;
 import org.springframework.stereotype.Service;
@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class TransactionService implements SaveTransaction, GetTransactionSum, GetTransactionsByType {
+public class TransactionService implements SaveTransaction, GetTransactionSum, GetTransactionIdsByType {
 
     private final TransactionRepository transactionRepository;
 
@@ -55,7 +55,7 @@ public class TransactionService implements SaveTransaction, GetTransactionSum, G
     }
 
     @Override
-    public synchronized List<Transaction> getTransactionsByType(String type) {
-        return transactionRepository.getTransactionsByType(type);
+    public synchronized List<Long> getTransactionIdsByType(String type) {
+        return transactionRepository.getTransactionIdsByType(type);
     }
 }

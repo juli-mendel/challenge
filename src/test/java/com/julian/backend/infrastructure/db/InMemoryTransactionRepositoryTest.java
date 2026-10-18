@@ -216,37 +216,37 @@ public class InMemoryTransactionRepositoryTest {
     }
 
     @Test
-    void givenNoTransactions_whenGetTransactionsByType_thenReturnsEmptyList() {
-        assertEquals(List.of(), transactionRepository.getTransactionsByType(TYPE));
+    void givenNoTransactions_whenGetTransactionIdsByType_thenReturnsEmptyList() {
+        assertEquals(List.of(), transactionRepository.getTransactionIdsByType(TYPE));
     }
 
     @Test
-    void givenOneTransaction_whenGetTransactionsByType_thenReturnsIt() {
+    void givenOneTransaction_whenGetTransactionIdsByType_thenReturnsIt() {
         Transaction transaction = new Transaction(ID, TYPE, AMOUNT, null);
         transactionRepository.save(transaction);
 
-        assertEquals(List.of(transaction), transactionRepository.getTransactionsByType(TYPE));
+        assertEquals(List.of(ID), transactionRepository.getTransactionIdsByType(TYPE));
     }
 
     @Test
-    void givenTwoTransactionsWithSameType_whenGetTransactionsByType_thenReturnsBoth() {
+    void givenTwoTransactionsWithSameType_whenGetTransactionIdsByType_thenReturnsBoth() {
         Transaction firstTransaction = new Transaction(ID, TYPE, AMOUNT, null);
         Transaction secondTransaction = new Transaction(UNCONNECTED_ID, TYPE, AMOUNT, null);
         transactionRepository.save(firstTransaction);
         transactionRepository.save(secondTransaction);
 
-        assertEquals(List.of(firstTransaction, secondTransaction), transactionRepository.getTransactionsByType(TYPE));
+        assertEquals(List.of(ID, UNCONNECTED_ID), transactionRepository.getTransactionIdsByType(TYPE));
     }
 
     @Test
-    void givenTwoTransactionsWithDifferentTypes_whenGetTransactionsByType_thenReturnsOnlyThoseOfEachType() {
+    void givenTwoTransactionsWithDifferentTypes_whenGetTransactionIdsByType_thenReturnsOnlyThoseOfEachType() {
         Transaction transaction = new Transaction(ID, TYPE, AMOUNT, null);
         Transaction otherTypeTransaction = new Transaction(UNCONNECTED_ID, OTHER_TYPE, AMOUNT, null);
         transactionRepository.save(transaction);
         transactionRepository.save(otherTypeTransaction);
 
-        assertEquals(List.of(transaction), transactionRepository.getTransactionsByType(TYPE));
-        assertEquals(List.of(otherTypeTransaction), transactionRepository.getTransactionsByType(OTHER_TYPE));
+        assertEquals(List.of(ID), transactionRepository.getTransactionIdsByType(TYPE));
+        assertEquals(List.of(UNCONNECTED_ID), transactionRepository.getTransactionIdsByType(OTHER_TYPE));
     }
 
     @Test
@@ -254,7 +254,7 @@ public class InMemoryTransactionRepositoryTest {
         Transaction transaction = new Transaction(ID, EMPTY_TYPE, AMOUNT, null);
         transactionRepository.save(transaction);
 
-        assertEquals(List.of(transaction), transactionRepository.getTransactionsByType(EMPTY_TYPE));
+        assertEquals(List.of(ID), transactionRepository.getTransactionIdsByType(EMPTY_TYPE));
     }
 
     @Test
@@ -264,7 +264,7 @@ public class InMemoryTransactionRepositoryTest {
         Transaction updatedTransaction = new Transaction(ID, TYPE, 3000.0, null);
         transactionRepository.save(updatedTransaction);
 
-        assertEquals(List.of(updatedTransaction), transactionRepository.getTransactionsByType(TYPE));
+        assertEquals(List.of(ID), transactionRepository.getTransactionIdsByType(TYPE));
     }
 
     @Test
@@ -274,7 +274,7 @@ public class InMemoryTransactionRepositoryTest {
         Transaction updatedTransaction = new Transaction(ID, OTHER_TYPE, AMOUNT, null);
         transactionRepository.save(updatedTransaction);
 
-        assertEquals(List.of(), transactionRepository.getTransactionsByType(TYPE));
-        assertEquals(List.of(updatedTransaction), transactionRepository.getTransactionsByType(OTHER_TYPE));
+        assertEquals(List.of(), transactionRepository.getTransactionIdsByType(TYPE));
+        assertEquals(List.of(ID), transactionRepository.getTransactionIdsByType(OTHER_TYPE));
     }
 }
