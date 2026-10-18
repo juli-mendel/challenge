@@ -56,6 +56,7 @@ En el caso 3, es restar la suma de la versión anterior de la transacción actua
 5. type puede ser el string vacío.
 6. Transaction va a fallar si parentId es igual al transaction id. De todas formas, el parentId tiene que existir, por lo que no debería pasar en el negocio de que parentId y transaction id sean iguales.
 7. Si el type no fue registrado aún, el getByType devuelve un array vacío.
+8. Asumo que no habrán IDs negativos.
 
 ## Decisiones
 1. existsById únicamente pregunta si existe la key en el mapa en memoria. Podría reemplazarse por obtener la transacción y ver que sea distinto de Optional.empty().

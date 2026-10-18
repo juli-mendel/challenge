@@ -13,6 +13,9 @@ public class Transaction {
         if (id == null) {
             throw new IllegalArgumentException("id must not be null");
         }
+        if (id < 0) {
+            throw new IllegalArgumentException("id must not be negative");
+        }
         if (type == null) {
             throw new IllegalArgumentException("type must not be null");
         }

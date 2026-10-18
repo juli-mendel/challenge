@@ -15,7 +15,6 @@ import com.julian.backend.application.exception.ParentTransactionNotFoundExcepti
 import com.julian.backend.application.exception.TransactionCycleException;
 import com.julian.backend.application.exception.TransactionNotFoundException;
 import com.julian.backend.application.repository.TransactionRepository;
-import com.julian.backend.application.service.TransactionService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

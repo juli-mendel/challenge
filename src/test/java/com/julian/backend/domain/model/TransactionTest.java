@@ -22,6 +22,11 @@ public class TransactionTest {
     }
 
     @Test
+    void givenNewTransactionWithNegativeId_thenThrowsIllegalArgumentException() {
+        assertThrows(IllegalArgumentException.class, () -> new Transaction(-1L, TYPE, AMOUNT, PARENT_ID));
+    }
+
+    @Test
     void givenNewTransactionWithType_whenGetType_thenReturnsType() {
         Transaction transaction = new Transaction(ID, TYPE, AMOUNT, PARENT_ID);
 
