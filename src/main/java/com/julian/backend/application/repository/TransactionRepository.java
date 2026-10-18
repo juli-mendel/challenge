@@ -30,7 +30,7 @@ public interface TransactionRepository {
     Optional<Transaction> findById(Long id);
 
     /**
-     * Returns the amount of the transaction plus the number of all its
+     * Returns the amount of the transaction plus the amounts of all its
      * descendants, transitively linked by parentId.
      *
      * @param id the transaction id
