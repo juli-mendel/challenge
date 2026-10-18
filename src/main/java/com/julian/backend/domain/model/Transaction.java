@@ -1,5 +1,7 @@
 package com.julian.backend.domain.model;
 
+import com.julian.backend.domain.exception.InvalidTransactionException;
+
 import java.util.Optional;
 
 public class Transaction {
@@ -11,19 +13,19 @@ public class Transaction {
 
     public Transaction(Long id, String type, Double amount, Long parentId) {
         if (id == null) {
-            throw new IllegalArgumentException("id must not be null");
+            throw new InvalidTransactionException("id must not be null");
         }
         if (id < 0) {
-            throw new IllegalArgumentException("id must not be negative");
+            throw new InvalidTransactionException("id must not be negative");
         }
         if (type == null) {
-            throw new IllegalArgumentException("type must not be null");
+            throw new InvalidTransactionException("type must not be null");
         }
         if (amount == null) {
-            throw new IllegalArgumentException("amount must not be null");
+            throw new InvalidTransactionException("amount must not be null");
         }
         if (id.equals(parentId)) {
-            throw new IllegalArgumentException("parentId must not be equal to id");
+            throw new InvalidTransactionException("parentId must not be equal to id");
         }
         this.id = id;
         this.type = type;

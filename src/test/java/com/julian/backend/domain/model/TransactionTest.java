@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Optional;
 
+import com.julian.backend.domain.exception.InvalidTransactionException;
 import org.junit.jupiter.api.Test;
 
 public class TransactionTest {
@@ -22,8 +23,8 @@ public class TransactionTest {
     }
 
     @Test
-    void givenNewTransactionWithNegativeId_thenThrowsIllegalArgumentException() {
-        assertThrows(IllegalArgumentException.class, () -> new Transaction(-1L, TYPE, AMOUNT, PARENT_ID));
+    void givenNewTransactionWithNegativeId_thenThrowsInvalidTransactionException() {
+        assertThrows(InvalidTransactionException.class, () -> new Transaction(-1L, TYPE, AMOUNT, PARENT_ID));
     }
 
     @Test
@@ -76,22 +77,22 @@ public class TransactionTest {
     }
 
     @Test
-    void givenNullId_whenCreateTransaction_thenThrowsIllegalArgumentException() {
-        assertThrows(IllegalArgumentException.class, () -> new Transaction(null, TYPE, AMOUNT, PARENT_ID));
+    void givenNullId_whenCreateTransaction_thenThrowsInvalidTransactionException() {
+        assertThrows(InvalidTransactionException.class, () -> new Transaction(null, TYPE, AMOUNT, PARENT_ID));
     }
 
     @Test
-    void givenNullType_whenCreateTransaction_thenThrowsIllegalArgumentException() {
-        assertThrows(IllegalArgumentException.class, () -> new Transaction(ID, null, AMOUNT, PARENT_ID));
+    void givenNullType_whenCreateTransaction_thenThrowsInvalidTransactionException() {
+        assertThrows(InvalidTransactionException.class, () -> new Transaction(ID, null, AMOUNT, PARENT_ID));
     }
 
     @Test
-    void givenNullAmount_whenCreateTransaction_thenThrowsIllegalArgumentException() {
-        assertThrows(IllegalArgumentException.class, () -> new Transaction(ID, TYPE, null, PARENT_ID));
+    void givenNullAmount_whenCreateTransaction_thenThrowsInvalidTransactionException() {
+        assertThrows(InvalidTransactionException.class, () -> new Transaction(ID, TYPE, null, PARENT_ID));
     }
 
     @Test
-    void givenParentIdEqualToId_whenCreateTransaction_thenThrowsIllegalArgumentException() {
-        assertThrows(IllegalArgumentException.class, () -> new Transaction(ID, TYPE, AMOUNT, ID));
+    void givenParentIdEqualToId_whenCreateTransaction_thenThrowsInvalidTransactionException() {
+        assertThrows(InvalidTransactionException.class, () -> new Transaction(ID, TYPE, AMOUNT, ID));
     }
 }

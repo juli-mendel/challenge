@@ -1,6 +1,7 @@
 package com.julian.backend.infrastructure.controller.handler;
 
 import com.julian.backend.application.exception.TransactionNotFoundException;
+import com.julian.backend.domain.exception.InvalidTransactionException;
 import com.julian.backend.infrastructure.controller.dto.ErrorResponseDto;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -32,8 +33,8 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(responseDto);
     }
 
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<ErrorResponseDto> handleIllegalArgument(IllegalArgumentException ex) {
+    @ExceptionHandler(InvalidTransactionException.class)
+    public ResponseEntity<ErrorResponseDto> handleInvalidTransactionException(InvalidTransactionException ex) {
         int errorCode = 400;
         ErrorResponseDto responseDto = new ErrorResponseDto(
             "Bad Request Error",
