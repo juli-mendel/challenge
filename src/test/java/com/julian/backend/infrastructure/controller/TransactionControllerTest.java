@@ -19,8 +19,7 @@ import static org.mockito.Mockito.*;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(TransactionController.class)
 public class TransactionControllerTest {
@@ -122,7 +121,8 @@ public class TransactionControllerTest {
         mockMvc.perform(put("/transactions/1")
                 .contentType(APPLICATION_JSON)
                 .content(BODY_FOR_SAVE_TRANSACTION_WITHOUT_PARENT_ID))
-            .andExpect(status().isOk());
+            .andExpect(status().isOk())
+            .andExpect(content().json("{\"status\": \"ok\"}"));
         verify(saveTransaction).saveTransaction(argThat(transaction ->
             transaction.getId().equals(1L)
                 && transaction.getAmount().equals(5000.0)

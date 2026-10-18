@@ -4,6 +4,7 @@ import com.julian.backend.application.usecase.GetTransactionIdsByType;
 import com.julian.backend.application.usecase.GetTransactionSum;
 import com.julian.backend.application.usecase.SaveTransaction;
 import com.julian.backend.domain.model.Transaction;
+import com.julian.backend.infrastructure.controller.dto.StatusResponseDto;
 import com.julian.backend.infrastructure.controller.dto.TransactionRequestDto;
 import com.julian.backend.infrastructure.controller.mapper.TransactionMapper;
 import jakarta.validation.Valid;
@@ -42,10 +43,11 @@ public class TransactionController {
     }
 
     @PutMapping("transactions/{id}")
-    public ResponseEntity<Void> saveTransaction(@PathVariable @PositiveOrZero Long id,
+    public ResponseEntity<StatusResponseDto> saveTransaction(@PathVariable @PositiveOrZero Long id,
                                                 @RequestBody @Valid TransactionRequestDto transactionDto) {
         Transaction transaction = TransactionMapper.toTransaction(id, transactionDto);
         saveTransaction.saveTransaction(transaction);
-        return ResponseEntity.ok().build();
+        StatusResponseDto statusResponseDto = new StatusResponseDto("ok");
+        return ResponseEntity.ok(statusResponseDto);
     }
 }
