@@ -2,6 +2,7 @@ package com.julian.backend.infrastructure.controller;
 
 import com.julian.backend.application.usecase.GetTransactionIdsByType;
 import com.julian.backend.application.usecase.GetTransactionSum;
+import jakarta.validation.constraints.PositiveOrZero;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -30,7 +31,7 @@ public class TransactionController {
 
     // GET /transaction/sum/123 -> 123.0
     @GetMapping("transactions/sum/{id}")
-    public ResponseEntity<Double> getTransactionSum(@PathVariable Long id) {
+    public ResponseEntity<Double> getTransactionSum(@PathVariable @PositiveOrZero Long id) {
         return ResponseEntity.ok(getTransactionSum.getTransactionSum(id));
     }
 }

@@ -11,7 +11,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
 
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -37,6 +37,14 @@ public class TransactionControllerTest {
     }
 
     @Test
+    void givenNoType_whenGetTransactionIdsByType_thenReturnsError404() throws Exception {
+        mockMvc.perform(get("/transactions/type/"))
+            .andExpect(status().isNotFound());
+
+        verify(getTransactionIdsByType, never()).getTransactionIdsByType(any());
+    }
+
+    @Test
     void getTransactionIdsByType_withExistentType_thenReturnsIdsList() throws Exception {
         when(getTransactionIdsByType.getTransactionIdsByType("someType")).thenReturn(List.of(1L, 2L, 3L));
         mockMvc.perform(get("/transactions/type/someType"))
@@ -59,5 +67,26 @@ public class TransactionControllerTest {
         mockMvc.perform(get("/transactions/sum/1"))
             .andExpect(status().isOk())
             .andExpect(content().string("100.0"));
+    }
+
+    @Test
+    void getTransactionSum_withNegativeId_thenReturnsError400() throws Exception {
+        mockMvc.perform(get("/transactions/sum/-1"))
+            .andExpect(status().isBadRequest());
+        verify(getTransactionSum, never()).getTransactionSum(any());
+    }
+
+    @Test
+    void getTransactionSum_withNonNumericId_thenReturnsError400() throws Exception {
+        mockMvc.perform(get("/transactions/sum/abc"))
+            .andExpect(status().isBadRequest());
+        verify(getTransactionSum, never()).getTransactionSum(any());
+    }
+
+    @Test
+    void getTransactionSum_withNoId_thenReturnsError404() throws Exception {
+        mockMvc.perform(get("/transactions/sum/"))
+            .andExpect(status().isNotFound());
+        verify(getTransactionSum, never()).getTransactionSum(any());
     }
 }
