@@ -1,4 +1,4 @@
-package com.julian.backend.service;
+package com.julian.backend.application.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;

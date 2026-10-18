@@ -1,4 +1,4 @@
-package com.julian.backend.service;
+package com.julian.backend.application.service;
 
 import com.julian.backend.application.exception.ParentTransactionNotFoundException;
 import com.julian.backend.application.exception.TransactionCycleException;
