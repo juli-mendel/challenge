@@ -1,6 +1,8 @@
 package com.julian.backend.infrastructure.controller;
 
+import com.julian.backend.application.exception.TransactionNotFoundException;
 import com.julian.backend.application.usecase.GetTransactionIdsByType;
+import com.julian.backend.application.usecase.GetTransactionSum;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
@@ -23,6 +25,9 @@ public class TransactionControllerTest {
     @MockitoBean
     private GetTransactionIdsByType getTransactionIdsByType;
 
+    @MockitoBean
+    private GetTransactionSum getTransactionSum;
+
     @Test
     void getTransactionIdsByType_whenNoTransactions_thenReturnsEmptyList() throws Exception {
         when(getTransactionIdsByType.getTransactionIdsByType("someType")).thenReturn(List.of());
@@ -37,5 +42,22 @@ public class TransactionControllerTest {
         mockMvc.perform(get("/transactions/type/someType"))
             .andExpect(status().isOk())
             .andExpect(content().json("[1, 2 ,3]"));
+    }
+
+    @Test
+    void getTransactionSum_withNonExistentId_thenReturnsError404() throws Exception {
+        long invalidTransactionId = 1L;
+        when(getTransactionSum.getTransactionSum(invalidTransactionId)).thenThrow(new TransactionNotFoundException(invalidTransactionId));
+        mockMvc.perform(get("/transactions/sum/1"))
+            .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void getTransactionSum_withExistentId_thenReturnsItsSum() throws Exception {
+        long validTransactionId = 1L;
+        when(getTransactionSum.getTransactionSum(validTransactionId)).thenReturn(100.0);
+        mockMvc.perform(get("/transactions/sum/1"))
+            .andExpect(status().isOk())
+            .andExpect(content().string("100.0"));
     }
 }
