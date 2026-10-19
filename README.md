@@ -1,4 +1,4 @@
-# Backend API
+# Mendel API
 
 Backend que almacena transacciones y permite consultar su suma total y tipos.
 

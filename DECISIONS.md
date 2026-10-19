@@ -1,4 +1,4 @@
-# Decisions
+# Decisiones
 
 En el siguiente documento dejo registrado decisiones que tomé en el proyecto.
 
