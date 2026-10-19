@@ -20,7 +20,7 @@ Voy a basarme en una arquitectura hexagonal (siguiendo clean architecture).
         - transactionsById: Dado el ID de una transacción, devuelve el objeto Transaction
         - transactionSumById: Esta decisión se explicará más adelante, pero tiene cacheado la suma de sus hijos conectados por parentId transitivamente.
         - transactionsByType: Dado un tipo de transacción, devuelve las transacciones que tienen ese tipo
-      - Las operaciones serán getTransactionByType, getTransactionSumById, saveTransaction. El TransactionInMemoryRepositoryImpl será responsable de actualizar transactionSumById.
+      - Las operaciones serán getTransactionByType, getTransactionSumById, saveTransaction. El TransactionService será responsable de actualizar transactionSumById.
     - Controllers: Son quienes manejan los REST endpoints, se comunican con los servicios y responden a las peticiones HTTP
       - Mapper y DTO: 
           - TransactionMapper: Mapea la consulta a a RequestDTO o ResponseDto y viceversa
