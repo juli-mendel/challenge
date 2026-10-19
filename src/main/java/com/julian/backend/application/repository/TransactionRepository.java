@@ -30,13 +30,28 @@ public interface TransactionRepository {
     Optional<Transaction> findById(Long id);
 
     /**
-     * Returns the amount of the transaction plus the amounts of all its
-     * descendants, transitively linked by parentId.
+     * Returns the stored sum for the transaction.
      *
      * @param id the transaction id
-     * @return the sum, or empty if no transaction has that id
+     * @return the stored sum, or empty if none was stored
      */
     Optional<Double> getTransactionSumById(Long id);
+
+    /**
+     * Stores the sum of the transaction.
+     *
+     * @param id the transaction id
+     * @param sum the sum to store
+     */
+    void putTransactionSum(Long id, double sum);
+
+    /**
+     * Adds the amount to the stored sum of the transaction.
+     *
+     * @param id the transaction id
+     * @param amount the amount to add
+     */
+    void addToTransactionSum(Long id, double amount);
 
     /**
      * Returns the transactions ids with exactly the given type.

@@ -26,7 +26,29 @@ public class TransactionService implements SaveTransaction, GetTransactionSum, G
     public synchronized void saveTransaction(Transaction transaction) {
         verifyParentId(transaction);
         verifyNoCycle(transaction);
+
+        Optional<Transaction> previousTransaction = transactionRepository.findById(transaction.getId());
+        double childrenSum = previousTransaction
+            .map(existingTransaction -> storedSum(existingTransaction.getId()) - existingTransaction.getAmount())
+            .orElse(0.0);
+        previousTransaction.ifPresent(existingTransaction -> addAmountToAncestors(existingTransaction, -storedSum(existingTransaction.getId())));
+
         transactionRepository.save(transaction);
+        double sum = childrenSum + transaction.getAmount();
+        transactionRepository.putTransactionSum(transaction.getId(), sum);
+        addAmountToAncestors(transaction, sum);
+    }
+
+    private double storedSum(Long id) {
+        return transactionRepository.getTransactionSumById(id).orElseThrow();
+    }
+
+    private void addAmountToAncestors(Transaction transaction, double amount) {
+        Optional<Long> ancestorId = transaction.getParentId();
+        while (ancestorId.isPresent()) {
+            transactionRepository.addToTransactionSum(ancestorId.get(), amount);
+            ancestorId = transactionRepository.findById(ancestorId.get()).flatMap(Transaction::getParentId);
+        }
     }
 
     private void verifyNoCycle(Transaction transaction) {
@@ -51,7 +73,7 @@ public class TransactionService implements SaveTransaction, GetTransactionSum, G
     @Override
     public synchronized double getTransactionSum(Long id) {
         return transactionRepository.getTransactionSumById(id)
-                .orElseThrow(() -> new TransactionNotFoundException(id));
+            .orElseThrow(() -> new TransactionNotFoundException(id));
     }
 
     @Override

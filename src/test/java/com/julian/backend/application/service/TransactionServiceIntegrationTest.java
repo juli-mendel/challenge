@@ -151,4 +151,63 @@ public class TransactionServiceIntegrationTest {
         assertEquals(parentAmount + newTransactionAmount, transactionService.getTransactionSum(parentTransactionId));
         assertEquals(newTransactionAmount, transactionService.getTransactionSum(newTransactionId));
     }
+
+    @Test
+    void saveTransaction_givenTwoChildren_thenParentSumIncludesBoth() {
+        transactionService.saveTransaction(new Transaction(10L, "cars", 5000.0, null));
+        transactionService.saveTransaction(new Transaction(11L, "cars", 1000.0, 10L));
+        transactionService.saveTransaction(new Transaction(13L, "cars", 30.0, 10L));
+
+        assertEquals(6030.0, transactionService.getTransactionSum(10L));
+    }
+
+    @Test
+    void saveTransaction_givenUnconnectedTransaction_thenItIsNotIncludedInTheSum() {
+        transactionService.saveTransaction(new Transaction(10L, "cars", 5000.0, null));
+        transactionService.saveTransaction(new Transaction(11L, "cars", 1000.0, 10L));
+        transactionService.saveTransaction(new Transaction(20L, "cars", 4.0, null));
+
+        assertEquals(6000.0, transactionService.getTransactionSum(10L));
+        assertEquals(4.0, transactionService.getTransactionSum(20L));
+    }
+
+    @Test
+    void saveTransaction_givenChildWithNegativeAmount_thenParentSumIsReduced() {
+        transactionService.saveTransaction(new Transaction(10L, "cars", 5000.0, null));
+        transactionService.saveTransaction(new Transaction(11L, "cars", -2000.0, 10L));
+
+        assertEquals(3000.0, transactionService.getTransactionSum(10L));
+    }
+
+    @Test
+    void saveTransaction_givenChildWithZeroAmount_thenParentSumIsUnchanged() {
+        transactionService.saveTransaction(new Transaction(10L, "cars", 5000.0, null));
+        transactionService.saveTransaction(new Transaction(11L, "cars", 0.0, 10L));
+
+        assertEquals(5000.0, transactionService.getTransactionSum(10L));
+    }
+
+    @Test
+    void saveTransaction_givenSameParentAndNewAmount_thenSumsAreUpdated() {
+        transactionService.saveTransaction(new Transaction(10L, "cars", 5000.0, null));
+        transactionService.saveTransaction(new Transaction(11L, "cars", 1000.0, 10L));
+        transactionService.saveTransaction(new Transaction(12L, "cars", 200.0, 11L));
+
+        transactionService.saveTransaction(new Transaction(11L, "cars", 3000.0, 10L));
+
+        assertEquals(3200.0, transactionService.getTransactionSum(11L));
+        assertEquals(8200.0, transactionService.getTransactionSum(10L));
+    }
+
+    @Test
+    void saveTransaction_givenSameParentAndNewNegativeAmount_thenSumsAreUpdated() {
+        transactionService.saveTransaction(new Transaction(10L, "cars", 5000.0, null));
+        transactionService.saveTransaction(new Transaction(11L, "cars", 1000.0, 10L));
+        transactionService.saveTransaction(new Transaction(12L, "cars", 200.0, 11L));
+
+        transactionService.saveTransaction(new Transaction(11L, "cars", -3000.0, 10L));
+
+        assertEquals(-2800.0, transactionService.getTransactionSum(11L));
+        assertEquals(2200.0, transactionService.getTransactionSum(10L));
+    }
 }

@@ -19,9 +19,6 @@ public class InMemoryTransactionRepositoryTest {
     private static final String OTHER_TYPE = "planes";
     private static final String EMPTY_TYPE = "";
     private static final Double AMOUNT = 5000.0;
-    private static final Long CHILD_ID = 11L;
-    private static final Long GRANDCHILD_ID = 12L;
-    private static final Long SECOND_CHILD_ID = 13L;
     private static final Long UNCONNECTED_ID = 20L;
 
     private InMemoryTransactionRepository transactionRepository;
@@ -60,159 +57,63 @@ public class InMemoryTransactionRepositoryTest {
     }
 
     @Test
-    void getTransactionSumById_givenTransactionWithOneChild_thenParentSumIncludesChild() {
-        transactionRepository.save(new Transaction(ID, TYPE, AMOUNT, null));
-        transactionRepository.save(new Transaction(CHILD_ID, TYPE, 1000.0, ID));
-
-        double expectedSum = AMOUNT + 1000.0;
-        assertEquals(Optional.of(expectedSum), transactionRepository.getTransactionSumById(ID));
+    void getTransactionSumById_givenNoStoredSum_thenReturnsEmpty() {
+        assertEquals(Optional.empty(), transactionRepository.getTransactionSumById(ID));
     }
 
     @Test
-    void getTransactionSumById_givenChildAndGrandchild_thenSumsTransitively() {
+    void save_givenTransaction_thenDoesNotStoreItsSum() {
         transactionRepository.save(new Transaction(ID, TYPE, AMOUNT, null));
 
-        double childAmount = 1000.0;
-        transactionRepository.save(new Transaction(CHILD_ID, TYPE, childAmount, ID));
-
-        double grandchildAmount = 200.0;
-        transactionRepository.save(new Transaction(GRANDCHILD_ID, TYPE, grandchildAmount, CHILD_ID));
-
-        double expectedChildSum = childAmount + grandchildAmount;
-        assertEquals(Optional.of(expectedChildSum), transactionRepository.getTransactionSumById(CHILD_ID));
-
-        double expectedParentSum = AMOUNT + expectedChildSum;
-        assertEquals(Optional.of(expectedParentSum), transactionRepository.getTransactionSumById(ID));
+        assertEquals(Optional.empty(), transactionRepository.getTransactionSumById(ID));
     }
 
     @Test
-    void getTransactionSumById_givenATransactionWithTwoChildren_thenParentSumIncludesBoth() {
-        transactionRepository.save(new Transaction(ID, TYPE, AMOUNT, null));
+    void putTransactionSum_givenId_thenGetTransactionSumByIdReturnsIt() {
+        double sum = 6200.0;
 
-        double firstChildAmount = 1000.0;
-        transactionRepository.save(new Transaction(CHILD_ID, TYPE, firstChildAmount, ID));
+        transactionRepository.putTransactionSum(ID, sum);
 
-        double secondChildAmount = 30.0;
-        transactionRepository.save(new Transaction(SECOND_CHILD_ID, TYPE, secondChildAmount, ID));
-
-        double expectedParentSum = AMOUNT + firstChildAmount + secondChildAmount;
-        assertEquals(Optional.of(expectedParentSum), transactionRepository.getTransactionSumById(ID));
+        assertEquals(Optional.of(sum), transactionRepository.getTransactionSumById(ID));
     }
 
     @Test
-    void getTransactionSumById_givenUnconnectedTransaction_thenItIsNotIncluded() {
-        transactionRepository.save(new Transaction(ID, TYPE, AMOUNT, null));
+    void putTransactionSum_givenStoredSum_thenReplacesIt() {
+        transactionRepository.putTransactionSum(ID, 6200.0);
 
-        double childAmount = 1000.0;
-        transactionRepository.save(new Transaction(CHILD_ID, TYPE, childAmount, ID));
+        double newSum = 300.0;
+        transactionRepository.putTransactionSum(ID, newSum);
 
-        double newTreeAmount = 4.0;
-        transactionRepository.save(new Transaction(UNCONNECTED_ID, TYPE, newTreeAmount, null));
-
-        double expectedParentSum = AMOUNT + childAmount;
-        assertEquals(Optional.of(expectedParentSum), transactionRepository.getTransactionSumById(ID));
-        assertEquals(Optional.of(newTreeAmount), transactionRepository.getTransactionSumById(UNCONNECTED_ID));
+        assertEquals(Optional.of(newSum), transactionRepository.getTransactionSumById(ID));
     }
 
     @Test
-    void getTransactionSumById_givenChildWithNegativeAmount_thenParentSumIsReduced() {
-        transactionRepository.save(new Transaction(ID, TYPE, AMOUNT, null));
+    void addToTransactionSum_givenStoredSum_thenAddsAmount() {
+        transactionRepository.putTransactionSum(ID, AMOUNT);
 
-        double childAmount = -2000.0;
-        transactionRepository.save(new Transaction(CHILD_ID, TYPE, childAmount, ID));
+        double amount = 1000.0;
+        transactionRepository.addToTransactionSum(ID, amount);
 
-        double expectedParentSum = AMOUNT + childAmount;
-        assertEquals(Optional.of(expectedParentSum), transactionRepository.getTransactionSumById(ID));
+        assertEquals(Optional.of(AMOUNT + amount), transactionRepository.getTransactionSumById(ID));
     }
 
     @Test
-    void getTransactionSumById_givenChildWithZeroAmount_thenParentSumIsUnchanged() {
-        transactionRepository.save(new Transaction(ID, TYPE, AMOUNT, null));
+    void addToTransactionSum_givenNoStoredSum_thenStoresTheAmountAsSum() {
+        double amount = 1000.0;
 
-        double childAmount = 0.0;
-        transactionRepository.save(new Transaction(CHILD_ID, TYPE, childAmount, ID));
+        transactionRepository.addToTransactionSum(ID, amount);
 
-        assertEquals(Optional.of(AMOUNT), transactionRepository.getTransactionSumById(ID));
+        assertEquals(Optional.of(amount), transactionRepository.getTransactionSumById(ID));
     }
 
     @Test
-    void save_givenExistingTransactionIdWithSameParentAndNewAmount_thenSumsAreUpdated() {
-        transactionRepository.save(new Transaction(ID, TYPE, AMOUNT, null));
+    void addToTransactionSum_givenNegativeAmount_thenSubtractsIt() {
+        transactionRepository.putTransactionSum(ID, AMOUNT);
 
-        double oldChildAmount = 1000.0;
-        transactionRepository.save(new Transaction(CHILD_ID, TYPE, oldChildAmount, ID));
+        double amount = -2000.0;
+        transactionRepository.addToTransactionSum(ID, amount);
 
-        double grandchildAmount = 200.0;
-        transactionRepository.save(new Transaction(GRANDCHILD_ID, TYPE, grandchildAmount, CHILD_ID));
-
-        double newChildAmount = 3000.0;
-        transactionRepository.save(new Transaction(CHILD_ID, TYPE, newChildAmount, ID));
-
-        double expectedChildSum = newChildAmount + grandchildAmount;
-        assertEquals(Optional.of(expectedChildSum), transactionRepository.getTransactionSumById(CHILD_ID));
-
-        double expectedParentSum = AMOUNT + expectedChildSum;
-        assertEquals(Optional.of(expectedParentSum), transactionRepository.getTransactionSumById(ID));
-    }
-
-    @Test
-    void save_givenExistingTransactionIdWithSameParentAndNewNegativeAmount_thenSumsAreUpdated() {
-        transactionRepository.save(new Transaction(ID, TYPE, AMOUNT, null));
-
-        double oldChildAmount = 1000.0;
-        transactionRepository.save(new Transaction(CHILD_ID, TYPE, oldChildAmount, ID));
-
-        double grandchildAmount = 200.0;
-        transactionRepository.save(new Transaction(GRANDCHILD_ID, TYPE, grandchildAmount, CHILD_ID));
-
-        double newChildAmount = -3000.0;
-        transactionRepository.save(new Transaction(CHILD_ID, TYPE, newChildAmount, ID));
-
-        double expectedChildSum = newChildAmount + grandchildAmount;
-        assertEquals(Optional.of(expectedChildSum), transactionRepository.getTransactionSumById(CHILD_ID));
-
-        double expectedParentSum = AMOUNT + expectedChildSum;
-        assertEquals(Optional.of(expectedParentSum), transactionRepository.getTransactionSumById(ID));
-    }
-
-    @Test
-    void save_givenExistingTransactionIdWithNewParent_thenSubtreeSumMovesToNewParent() {
-        transactionRepository.save(new Transaction(ID, TYPE, AMOUNT, null));
-
-        double childAmount = 1000.0;
-        transactionRepository.save(new Transaction(CHILD_ID, TYPE, childAmount, ID));
-
-        double grandchildAmount = 200.0;
-        transactionRepository.save(new Transaction(GRANDCHILD_ID, TYPE, grandchildAmount, CHILD_ID));
-
-        double newParentAmount = 4.0;
-        transactionRepository.save(new Transaction(UNCONNECTED_ID, TYPE, newParentAmount, null));
-
-        transactionRepository.save(new Transaction(CHILD_ID, TYPE, childAmount, UNCONNECTED_ID));
-
-        double expectedChildSum = childAmount + grandchildAmount;
-        assertEquals(Optional.of(expectedChildSum), transactionRepository.getTransactionSumById(CHILD_ID));
-        assertEquals(Optional.of(AMOUNT), transactionRepository.getTransactionSumById(ID));
-
-        double expectedNewParentSum = newParentAmount + expectedChildSum;
-        assertEquals(Optional.of(expectedNewParentSum), transactionRepository.getTransactionSumById(UNCONNECTED_ID));
-    }
-
-    @Test
-    void save_givenExistingTransactionIdWithParentRemoved_thenSubtreeSumIsRemovedFromOldParent() {
-        transactionRepository.save(new Transaction(ID, TYPE, AMOUNT, null));
-
-        double childAmount = 1000.0;
-        transactionRepository.save(new Transaction(CHILD_ID, TYPE, childAmount, ID));
-
-        double grandchildAmount = 200.0;
-        transactionRepository.save(new Transaction(GRANDCHILD_ID, TYPE, grandchildAmount, CHILD_ID));
-
-        transactionRepository.save(new Transaction(CHILD_ID, TYPE, childAmount, null));
-
-        double expectedChildSum = childAmount + grandchildAmount;
-        assertEquals(Optional.of(expectedChildSum), transactionRepository.getTransactionSumById(CHILD_ID));
-        assertEquals(Optional.of(AMOUNT), transactionRepository.getTransactionSumById(ID));
+        assertEquals(Optional.of(AMOUNT + amount), transactionRepository.getTransactionSumById(ID));
     }
 
     @Test

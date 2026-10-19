@@ -26,36 +26,11 @@ public class InMemoryTransactionRepository implements TransactionRepository {
 
     @Override
     public void save(Transaction transaction) {
-        Optional<Transaction> previous = findById(transaction.getId());
-        double childrenSum = previous.map(this::getChildrenSum).orElse(0.0);
-
-        previous.ifPresent(this::removePreviousTransactionFromIndexes);
-        addNewTransactionToIndexes(transaction, childrenSum + transaction.getAmount());
-    }
-
-    private double getChildrenSum(Transaction transaction) {
-        return sumByTransactionId.get(transaction.getId()) - transaction.getAmount();
-    }
-
-    private void removePreviousTransactionFromIndexes(Transaction previous) {
-        addAmountToAncestors(previous, -sumByTransactionId.get(previous.getId()));
-        transactionIdsByType.get(previous.getType()).remove(previous.getId());
-    }
-
-    private void addNewTransactionToIndexes(Transaction transaction, double sum) {
+        findById(transaction.getId()).ifPresent(previous ->
+                transactionIdsByType.get(previous.getType()).remove(previous.getId()));
         transactionById.put(transaction.getId(), transaction);
-        sumByTransactionId.put(transaction.getId(), sum);
-        addAmountToAncestors(transaction, sum);
         transactionIdsByType.computeIfAbsent(transaction.getType(), type -> new LinkedHashSet<>())
                 .add(transaction.getId());
-    }
-
-    private void addAmountToAncestors(Transaction transaction, double amount) {
-        Optional<Long> ancestorId = transaction.getParentId();
-        while (ancestorId.isPresent()) {
-            sumByTransactionId.merge(ancestorId.get(), amount, Double::sum);
-            ancestorId = findById(ancestorId.get()).flatMap(Transaction::getParentId);
-        }
     }
 
     @Override
@@ -71,6 +46,16 @@ public class InMemoryTransactionRepository implements TransactionRepository {
     @Override
     public Optional<Double> getTransactionSumById(Long id) {
         return Optional.ofNullable(sumByTransactionId.get(id));
+    }
+
+    @Override
+    public void putTransactionSum(Long id, double sum) {
+        sumByTransactionId.put(id, sum);
+    }
+
+    @Override
+    public void addToTransactionSum(Long id, double amount) {
+        sumByTransactionId.merge(id, amount, Double::sum);
     }
 
     @Override
